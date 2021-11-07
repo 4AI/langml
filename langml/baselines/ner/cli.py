@@ -79,7 +79,6 @@ def train(
 
     if distributed_training:
         info('distributed training! using `TFDataLoader`')
-        assert max_len is not None, 'Please specify `max_len`!'
         train_DataLoader = TFDataLoader(train_datas, tokenizer, label2id,
                                         batch_size=batch_size, max_len=max_len, is_bert=is_bert)
         dev_DataLoader = TFDataLoader(dev_datas, tokenizer, label2id,
