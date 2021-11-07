@@ -12,8 +12,6 @@ LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend lang
 
 
 
-
-
 # Installation
 
 
@@ -24,7 +22,7 @@ pip install -U langml
 
 
 # Documents
-##
+
 ## Keras Variants
 
 
@@ -59,15 +57,176 @@ Commands:
 
 
 ### Text Classification
-// TODO
 
+#### Bert
 
+```bash
+$ langml-cli baseline clf bert --help
+Usage: langml baseline clf bert [OPTIONS]
 
+Options:
+  --backbone TEXT              specify backbone: bert | roberta | albert
+  --epoch INTEGER              epochs
+  --batch_size INTEGER         batch size
+  --learning_rate FLOAT        learning rate
+  --max_len INTEGER            max len
+  --lowercase                  do lowercase
+  --tokenizer_type TEXT        specify tokenizer type from [`wordpiece`,
+                               `sentencepiece`]
+
+  --monitor TEXT               monitor for keras callback
+  --early_stop INTEGER         patience to early stop
+  --use_micro                  whether to use micro metrics
+  --config_path TEXT           bert config path  [required]
+  --ckpt_path TEXT             bert checkpoint path  [required]
+  --vocab_path TEXT            bert vocabulary path  [required]
+  --train_path TEXT            train path  [required]
+  --dev_path TEXT              dev path  [required]
+  --test_path TEXT             test path
+  --save_dir TEXT              dir to save model  [required]
+  --verbose INTEGER            0 = silent, 1 = progress bar, 2 = one line per
+                               epoch
+
+  --distributed_training       distributed training
+  --distributed_strategy TEXT  distributed training strategy
+  --help                       Show this message and exit.
+```
+
+#### BiLSTM
+
+```bash
+$ langml-cli baseline clf bilstm --help
+Usage: langml baseline clf bilstm [OPTIONS]
+
+Options:
+  --epoch INTEGER              epochs
+  --batch_size INTEGER         batch size
+  --learning_rate FLOAT        learning rate
+  --embedding_size INTEGER     embedding size
+  --hidden_size INTEGER        hidden size of lstm
+  --max_len INTEGER            max len
+  --lowercase                  do lowercase
+  --tokenizer_type TEXT        specify tokenizer type from [`wordpiece`,
+                               `sentencepiece`]
+
+  --monitor TEXT               monitor for keras callback
+  --early_stop INTEGER         patience to early stop
+  --use_micro                  whether to use micro metrics
+  --vocab_path TEXT            vocabulary path  [required]
+  --train_path TEXT            train path  [required]
+  --dev_path TEXT              dev path  [required]
+  --test_path TEXT             test path
+  --save_dir TEXT              dir to save model  [required]
+  --verbose INTEGER            0 = silent, 1 = progress bar, 2 = one line per
+                               epoch
+
+  --with_attention             apply attention mechanism
+  --distributed_training       distributed training
+  --distributed_strategy TEXT  distributed training strategy
+  --help                       Show this message and exit.
+```
+
+#### TextCNN
+
+```bash
+$ langml-cli baseline clf textcnn --help
+Usage: langml baseline clf textcnn [OPTIONS]
+
+Options:
+  --epoch INTEGER              epochs
+  --batch_size INTEGER         batch size
+  --learning_rate FLOAT        learning rate
+  --embedding_size INTEGER     embedding size
+  --filter_size INTEGER        filter size of convolution
+  --max_len INTEGER            max len
+  --lowercase                  do lowercase
+  --tokenizer_type TEXT        specify tokenizer type from [`wordpiece`,
+                               `sentencepiece`]
+
+  --monitor TEXT               monitor for keras callback
+  --early_stop INTEGER         patience to early stop
+  --use_micro                  whether to use micro metrics
+  --vocab_path TEXT            vocabulary path  [required]
+  --train_path TEXT            train path  [required]
+  --dev_path TEXT              dev path  [required]
+  --test_path TEXT             test path
+  --save_dir TEXT              dir to save model  [required]
+  --verbose INTEGER            0 = silent, 1 = progress bar, 2 = one line per
+                               epoch
+
+  --distributed_training       distributed training
+  --distributed_strategy TEXT  distributed training strategy
+  --help                       Show this message and exit.
+```
 
 ### Named Entity Recognition
-// TODO
 
+#### Bert-CRF
 
+```bash
+$ langml-cli baseline ner bert-crf --help
+Usage: langml baseline ner bert-crf [OPTIONS]
+
+Options:
+  --backbone TEXT              specify backbone: bert | roberta | albert
+  --epoch INTEGER              epochs
+  --batch_size INTEGER         batch size
+  --learning_rate FLOAT        learning rate
+  --dropout_rate FLOAT         dropout rate
+  --max_len INTEGER            max len
+  --lowercase                  do lowercase
+  --tokenizer_type TEXT        specify tokenizer type from [`wordpiece`,
+                               `sentencepiece`]
+
+  --config_path TEXT           bert config path  [required]
+  --ckpt_path TEXT             bert checkpoint path  [required]
+  --vocab_path TEXT            bert vocabulary path  [required]
+  --train_path TEXT            train path  [required]
+  --dev_path TEXT              dev path  [required]
+  --test_path TEXT             test path
+  --save_dir TEXT              dir to save model  [required]
+  --monitor TEXT               monitor for keras callback
+  --early_stop INTEGER         patience to early stop
+  --verbose INTEGER            0 = silent, 1 = progress bar, 2 = one line per
+                               epoch
+
+  --distributed_training       distributed training
+  --distributed_strategy TEXT  distributed training strategy
+  --help                       Show this message and exit.
+```
+
+#### LSTM-CRF
+
+```bash
+$  langml-cli baseline ner lstm-crf --help
+Usage: langml baseline ner lstm-crf [OPTIONS]
+
+Options:
+  --epoch INTEGER              epochs
+  --batch_size INTEGER         batch size
+  --learning_rate FLOAT        learning rate
+  --dropout_rate FLOAT         dropout rate
+  --embedding_size INTEGER     embedding size
+  --hidden_size INTEGER        hidden size
+  --max_len INTEGER            max len
+  --lowercase                  do lowercase
+  --tokenizer_type TEXT        specify tokenizer type from [`wordpiece`,
+                               `sentencepiece`]
+
+  --vocab_path TEXT            vocabulary path  [required]
+  --train_path TEXT            train path  [required]
+  --dev_path TEXT              dev path  [required]
+  --test_path TEXT             test path
+  --save_dir TEXT              dir to save model  [required]
+  --monitor TEXT               monitor for keras callback
+  --early_stop INTEGER         patience to early stop
+  --verbose INTEGER            0 = silent, 1 = progress bar, 2 = one line per
+                               epoch
+
+  --distributed_training       distributed training
+  --distributed_strategy TEXT  distributed training strategy
+  --help                       Show this message and exit.
+```
 
 ## Pretrained Languange Models
 
@@ -286,9 +445,42 @@ train_model.compile(keras.optimizers.Adam(1e-5),
 ****
 
 ## Tokenizers
-// TODO
 
+#### langml.tokenizer.WPTokenizer(vocab_path: str, lowercase: bool = False)
 
+Load WordPiece Tokenizer
+
+Examples:
+
+```python
+from langml.tokenizer import WPTokenizer
+
+tokenizer = WPTokenizer('/path/to/vocab.txt')
+
+text = 'hello world'
+tokenized = tokenizer.encode(text)
+
+print("token_ids:", tokenized.ids)
+print("segment_ids:", tokenized.segment_ids)
+```
+
+#### langml.tokenizer.SPTokenizer
+
+Load Sentencepiece Tokenizer
+
+Examples:
+
+```python
+from langml.tokenizer import SPTokenizer
+
+tokenizer = SPTokenizer('/path/to/vocab.model')
+
+text = 'hello world'
+tokenized = tokenizer.encode(text)
+
+print("token_ids:", tokenized.ids)
+print("segment_ids:", tokenized.segment_ids)
+```
 
 ## Keras Layers
 
