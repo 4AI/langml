@@ -10,6 +10,13 @@ LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend lang
   - [Keras Variants](#keras-variants)
   - [NLP Baseline Models](#nlp-baseline-models)
     - [Text Classification](#text-classification)
+    - [Named Entity Recognition](#named-entity-recognition)
+  - [Pretrained Language Models](#pretrained-language-models)
+  - [Tokenizers](#tokenizers)
+  - [Keras Layers](#keras-layers)
+  - [Save Model](#save-model)
+- [Reference](#reference)
+
 
 # Features
 <a href='#features'></a>
@@ -172,6 +179,7 @@ Options:
 ```
 
 ### Named Entity Recognition
+<a href='#named-entity-recognition'></a>
 
 #### Bert-CRF
 
@@ -240,8 +248,8 @@ Options:
   --help                       Show this message and exit.
 ```
 
-## Pretrained Languange Models
-
+## Pretrained Language Models
+<a href='#pretrained-language-models'></a>
 
 #### langml.plm.load_albert(config_path: str, checkpoint_path: str, seq_len: Optional[int] = None, pretraining: bool = False, with_mlm: bool = True, with_nsp: bool = True, lazy_restore: bool = False, weight_prefix: Optional[str] = None, dropout_rate: float = 0.0, **kwargs) -> Union[Tuple[Models, Callable], Tuple[Models, Callable, Callable]]: 🔗
 
@@ -292,8 +300,6 @@ Return:
   - model: an instance of keras.Model
   - bert: an instance of BERT
   - restore_weight_callback: a callback function to restore model weights. This callback function returns when lazy_restore=True.
-
-
 
 
 **Examples:**
@@ -457,6 +463,7 @@ train_model.compile(keras.optimizers.Adam(1e-5),
 </details>
 
 ## Tokenizers
+<a href='#tokenizers'></a>
 
 #### langml.tokenizer.WPTokenizer(vocab_path: str, lowercase: bool = False)
 
@@ -499,10 +506,9 @@ print("segment_ids:", tokenized.segment_ids)
 </details>
 
 ## Keras Layers
-
+<a href='#keras-layers'></a>
 
 #### langml.layers.CRF(output_dim: int, sparse_target: bool = True, **kwargs)
-
 
 Args:
   - output_dim: output dimension, int. It's usually equal to the tag size.
@@ -584,11 +590,14 @@ model.compile('adam', loss='sparse_categorical_crossentropy', metrics=['accuracy
 
 
 ## Save Model
-#### langml.model.save_frozen(model: Models, fpath: str)
+<a href='#save-model'></a>
 
+#### langml.model.save_frozen(model: Models, fpath: str)
 
 freeze model to tensorflow pb.
 
 
 # Reference
+<a href='#reference'></a>
+
 This project is inspired by [CyberZHG/keras-bert](https://github.com/CyberZHG/keras-bert#Download-Pretrained-Checkpoints) and [bojone/bert4keras](https://github.com/bojone/bert4keras).
