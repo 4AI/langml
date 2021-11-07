@@ -77,6 +77,13 @@ Commands:
 ### Text Classification
 <a href='#text-classification'></a>
 
+Please prepare your data into JSONLines format, and provide `text` and `label` field in each line, for example:
+
+```json
+{"text": "this is sentence1", "label": "label1"}
+{"text": "this is sentence2", "label": "label2"}
+```
+
 #### Bert
 
 ```bash
@@ -180,6 +187,29 @@ Options:
 
 ### Named Entity Recognition
 <a href='#named-entity-recognition'></a>
+
+Please prepare your data in the following format: use `\t` to separate entity segment and entity type in a sentence, and use `\n\n` to separate different sentences.
+
+
+An english example:
+
+```
+I like    O
+apples  Fruit
+
+I like    O
+pineapples  Fruit
+``` 
+
+A chinese example:
+
+```
+我来自  O
+中国    LOC
+
+我住在  O
+上海    LOC
+```
 
 #### Bert-CRF
 
