@@ -17,12 +17,12 @@ with open('dev-requirements.txt', encoding='utf-8') as f:
 setup(
     name='langml',
     version=__version__,
-    description='keras language machine learning toolkit.',
+    description='A Keras-based and TensorFlow-backend language model toolkit.',
     long_description=long_description,
     author='seanlee',
     author_email='xmlee97@gmail.com',
     platforms=['all'],
-    url='',
+    url='https://github.com/4AI/langml',
     packages=find_packages(exclude=('tests', 'tests.*')),
     classifiers=[
         'Intended Audience :: Developers',
