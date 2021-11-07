@@ -3,7 +3,16 @@ LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend lang
 
 [![](https://img.shields.io/badge/tensorflow-1.14+,2.x-orange.svg?style=for-the-badge#from=url&id=tVzOp&margin=%5Bobject%20Object%5D&originHeight=28&originWidth=197&originalType=binary&ratio=1&status=done&style=none)](https://code.alipay.com/riskstorm/langml/blob/master/) [![](https://img.shields.io/badge/keras-2.3.1+-blue.svg?style=for-the-badge#from=url&id=AIJ4T&margin=%5Bobject%20Object%5D&originHeight=28&originWidth=132&originalType=binary&ratio=1&status=done&style=none)](https://code.alipay.com/riskstorm/langml/blob/master/)
 
+# Outline
+- [Features](#features)
+- [Installation](#installation)
+- [Documents](#documents)
+  - [Keras Variants](#keras-variants)
+  - [NLP Baseline Models](#nlp-baseline-models)
+    - [Text Classification](#text-classification)
+
 # Features
+<a href='#features'></a>
 
 - Common and widely-used Keras layers: CRF, Attentions, Transformer
 - Pretrained Language Models: Bert, RoBERTa, ALBERT. Friendly designed interfaces and easy to implement downstream singleton, shared/unshared two-tower or multi-tower models.
@@ -13,7 +22,7 @@ LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend lang
 
 
 # Installation
-
+<a href='#installation'></a>
 
 You can install or upgrade langml/langml-cli via the following command:
 ```bash
@@ -22,8 +31,10 @@ pip install -U langml
 
 
 # Documents
+<a href='#documents'></a>
 
 ## Keras Variants
+<a href='#keras-variants'></a>
 
 
 LangML supports keras and tf.keras. You can configure environment variables to set specific Keras variant.
@@ -35,9 +46,9 @@ LangML supports keras and tf.keras. You can configure environment variables to s
 
 
 ## NLP Baseline Models
+<a href='#nlp-baseline-models'></a>
 
-
-You can train various baseline models use "langml-cli".
+You can train various baseline models using "langml-cli".
 
 
 Usage:
@@ -57,6 +68,7 @@ Commands:
 
 
 ### Text Classification
+<a href='#text-classification'></a>
 
 #### Bert
 
@@ -255,8 +267,6 @@ Return:
   - restore_weight_callback: a callback function to restore model weights. This callback function returns when lazy_restore=True.
 
 
-
-
 **Examples: refer to **[load_bert examples](#jsCdZ)
 
 
@@ -288,8 +298,9 @@ Return:
 
 **Examples:**
 
+<details>
+<summary>1. finetune a model (click to expand...)</summary>
 
-**1. finetune a model**
 ```python
 from langml.plm import load_bert
 
@@ -310,10 +321,10 @@ train_model.compile(keras.optimizers.Adam(1e-5),
                     loss='sparse_categorical_crossentropy',
                     metrics=['accuracy'])
 ```
+</details>
 
-
-**2. finetune a model under distributed training.**
-****
+<details>
+<summary>2. finetune a model under distributed training (click to expand...)</summary>
 
 ```python
 from langml.plm import load_bert
@@ -341,10 +352,10 @@ with strategy.scope():
 	# restore weights after compile
     restore_weight_callback(bert_model)
 ```
+</details>
 
-
-**3. continue to pretrain a language model**
-****
+<details>
+<summary>3. continue to pretrain a language model(click to expand...)</summary>
 
 ```python
 from langml.plm import load_bert
@@ -362,10 +373,10 @@ model.compile(keras.optimizers.Adam(1e-5),
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 ```
-****
+</details>
 
-**4. finetune a two-tower model with shared weights**
-****
+<details>
+<summary>4. finetune a two-tower model with shared weights (click to expand...)</summary>
 
 ```python
 from langml.plm import load_bert
@@ -402,10 +413,11 @@ train_model.compile(keras.optimizers.Adam(1e-5),
                     loss='sparse_categorical_crossentropy',
                     metrics=['accuracy'])
 ```
-****
+</details>
 
-**5. finetune a two-tower model with unshared weights**
-****
+
+<details>
+<summary>5. finetune a two-tower model with unshared weights  (click to expand...)</summary>
 
 ```python
 from langml.plm import load_bert
@@ -442,7 +454,7 @@ train_model.compile(keras.optimizers.Adam(1e-5),
                     loss='sparse_categorical_crossentropy',
                     metrics=['accuracy'])
 ```
-****
+</details>
 
 ## Tokenizers
 
@@ -450,7 +462,8 @@ train_model.compile(keras.optimizers.Adam(1e-5),
 
 Load WordPiece Tokenizer
 
-Examples:
+<details>
+<summary>Examples: (click to expand...)</summary>
 
 ```python
 from langml.tokenizer import WPTokenizer
@@ -463,12 +476,14 @@ tokenized = tokenizer.encode(text)
 print("token_ids:", tokenized.ids)
 print("segment_ids:", tokenized.segment_ids)
 ```
+</details>
 
 #### langml.tokenizer.SPTokenizer
 
 Load Sentencepiece Tokenizer
 
-Examples:
+<details>
+<summary>Examples: (click to expand...)</summary>
 
 ```python
 from langml.tokenizer import SPTokenizer
@@ -481,6 +496,7 @@ tokenized = tokenizer.encode(text)
 print("token_ids:", tokenized.ids)
 print("segment_ids:", tokenized.segment_ids)
 ```
+</details>
 
 ## Keras Layers
 
@@ -499,6 +515,8 @@ Return:
 
 **Examples:**
 
+<details>
+<summary>click to expand</summary>
 
 ```python
 import keras
@@ -522,12 +540,16 @@ model.summary()
 model.compile('adam', loss=crf.loss, metrics=[crf.accuracy])
 ```
 
+</details>
 
 #### langml.layers.SelfAttention(attention_units: Optional[int] = None, return_attention: bool = False, is_residual: bool = False, attention_activation: Activation = 'relu', attention_epsilon: float = 1e10, kernel_initializer: Initializer = 'glorot_normal', kernel_regularizer: Optional[Regularizer] = None, kernel_constraint: Optional[Constraint] = None, bias_initializer: Union[Initializer, str] = 'zeros', bias_regularizer: Optional[Regularizer] = None, bias_constraint: Optional[Constraint] = None, use_attention_bias: bool = True, attention_penalty_weight: float = 0.0, **kwargs)
 
 
 **Examples:**
 
+
+<details>
+<summary>click to expand</summary>
 
 ```python
 import keras
@@ -543,6 +565,8 @@ model.add(L.Dense(num_labels))
 model.summary()
 model.compile('adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 ```
+
+</details>
 
 
 #### langml.layers.SelfAdditiveAttention(attention_units: Optional[int] = None, return_attention: bool = False, is_residual: bool = False, attention_activation: Activation = 'relu', attention_epsilon: float = 1e10, kernel_initializer: Initializer = 'glorot_normal', kernel_regularizer: Optional[Regularizer] = None, kernel_constraint: Optional[Constraint] = None, bias_initializer: Initializer = 'zeros', bias_regularizer: Optional[Regularizer] = None, bias_constraint: Optional[Constraint] = None, use_attention_bias: bool = True, attention_penalty_weight: float = 0.0, **kwargs)
