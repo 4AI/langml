@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from abc import ABCMeta, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 
 class BaselineModel(metaclass=ABCMeta):
@@ -33,9 +33,10 @@ class BaseDataLoader(metaclass=ABCMeta):
 class Parameters:
     """ Hyper-Parameters
     """
-    def __init__(self, data: Dict):
-        for name, value in data.items():
-            setattr(self, name, self._wrap(value))
+    def __init__(self, data: Optional[Dict] = None):
+        if data is not None:
+            for name, value in data.items():
+                setattr(self, name, self._wrap(value))
 
     def _wrap(self, value: Any):
         if isinstance(value, (tuple, list, set, frozenset)): 
