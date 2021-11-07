@@ -7,7 +7,7 @@ from shutil import copyfile
 
 import click
 import tensorflow as tf
-from langml import TF_KERAS, TF_VERSION
+from langml import TF_KERAS
 from langml.baselines.ner.bert_crf import BertCRF
 from langml.baselines.ner.lstm_crf import LSTMCRF
 if TF_KERAS:
@@ -120,10 +120,7 @@ def train(
     K.clear_session()
     # restore model
     model = model_instance.build_model()
-    if TF_KERAS or TF_VERSION > 1:
-        model.load_weights(os.path.join(save_dir, 'best_model.weights')).expect_partial()
-    else:
-        model.load_weights(os.path.join(save_dir, 'best_model.weights'))
+    model.load_weights(os.path.join(save_dir, 'best_model.weights'))
     # compute detail metrics
     info('done to training! start to compute detail metrics...')
     print('develop metrics:')

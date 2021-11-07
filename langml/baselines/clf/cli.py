@@ -7,7 +7,7 @@ from shutil import copyfile
 
 import click
 import tensorflow as tf
-from langml import TF_VERSION, TF_KERAS
+from langml import TF_KERAS
 from langml.baselines.clf.bert import BertClassifier
 from langml.baselines.clf.textcnn import TextCNNClassifier
 from langml.baselines.clf.bilstm import BiLSTMClassifier
@@ -121,10 +121,7 @@ def train(
     K.clear_session()
     # restore best model
     model = model_instance.build_model()
-    if TF_KERAS or TF_VERSION > 1:
-        model.load_weights(os.path.join(save_dir, 'best_model.weights')).expect_partial()
-    else:
-        model.load_weights(os.path.join(save_dir, 'best_model.weights'))
+    model.load_weights(os.path.join(save_dir, 'best_model.weights'))
     # compute detail metrics
     info('done to training! start to compute detail metrics...')
     infer = Infer(model, tokenizer, id2label, is_bert=is_bert)

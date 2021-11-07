@@ -24,7 +24,6 @@ class TextCNNClassifier(BaselineModel):
                         name='embedding')(x)
         convs = []
         for kernel_size in [3, 4, 5]:
-            # for convenience, using 1d-conv here.
             conv = L.Conv1D(filters=self.params.filter_size,
                             kernel_size=kernel_size,
                             strides=1,

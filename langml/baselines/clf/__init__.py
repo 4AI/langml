@@ -23,8 +23,14 @@ class Infer:
 
     def __call__(self, text: str):
         tokenized = self.tokenizer.encode(text)
-        token_ids = np.array([tokenized.ids])
-        segment_ids = np.array([tokenized.segment_ids])
+        token_ids = tokenized.ids
+        segment_ids = tokenized.segment_ids
+        if len(token_ids) < 4:
+            # fix: compute negative size for textcnn
+            token_ids += [0] * (4 - len(token_ids))
+            segment_ids += [0] * (4 - len(segment_ids))
+        token_ids = np.array([token_ids])
+        segment_ids = np.array([segment_ids])
         if TF_VERSION > 1:
             if self.is_bert:
                 logits = self.model([token_ids, segment_ids])
