@@ -127,7 +127,7 @@ def train(
         model.load_weights(os.path.join(save_dir, 'best_model.weights'))
     # compute detail metrics
     info('done to training! start to compute detail metrics...')
-    infer = Infer(model, tokenizer, id2label)
+    infer = Infer(model, tokenizer, id2label, is_bert=is_bert)
     _, _, dev_cr = compute_detail_metrics(infer, dev_data, use_micro=use_micro)
     print('develop metrics:')
     print(dev_cr)
