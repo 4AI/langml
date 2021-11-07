@@ -59,7 +59,7 @@ class DataLoader(BaseDataLoader):
             for sentence in reader.read().split('\n\n'):
                 if not sentence:
                     continue
-                data = []
+                current_data = []
                 for chunk in sentence.split('\n'):
                     try:
                         segment, label = chunk.split('\t')
@@ -68,10 +68,10 @@ class DataLoader(BaseDataLoader):
                                 label2id[f'B-{label}'] = len(label2id)
                             if label != 'O' and f'I-{label}' not in label2id:
                                 label2id[f'I-{label}'] = len(label2id)
-                        data.append((segment, label))
+                        current_data.append((segment, label))
                     except ValueError:
                         print('broken data:', chunk)
-                data.append(data)
+                data.append(current_data)
         if build_vocab:
             return data, label2id
         return data
@@ -81,7 +81,7 @@ class DataLoader(BaseDataLoader):
 
     def make_iter(self, random: bool = False):
         if random:
-            shuffle(self.datas)
+            shuffle(self.data)
 
         for chunks in chunked_iter(self.data, self.batch_size):
             batch_tokens, batch_segments, batch_labels = [], [], []
