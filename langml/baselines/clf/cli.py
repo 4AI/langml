@@ -31,7 +31,7 @@ def train(
     model_instance: object, params: Parameters, epoch: int, save_dir: str,
     train_path: str, dev_path: str, test_path: str, vocab_path: str,
     tokenizer_type: str, lowercase: bool, max_len: int, batch_size: int,
-    distributed_training: bool, distributed_strategy: str,
+    distributed_training: bool, distributed_strategy: Optional[str],
     use_micro: bool, monitor: str, early_stop: int, verbose: int,
 ):
     # check distribute
@@ -217,7 +217,8 @@ def bert(backbone: str, epoch: int, batch_size: int, learning_rate: float, max_l
 def textcnn(epoch: int, batch_size: int, learning_rate: float, embedding_size: int,
             filter_size: int, max_len: Optional[int], lowercase: bool, tokenizer_type: Optional[str],
             monitor: str, early_stop: int, use_micro: bool, vocab_path: str, train_path: str, dev_path: str,
-            test_path: str, save_dir: str, verbose: int, distributed_training: bool, distributed_strategy: str):
+            test_path: str, save_dir: str, verbose: int, distributed_training: bool,
+            distributed_strategy: Optional[str]):
 
     params = Parameters({
         'learning_rate': learning_rate,
@@ -261,7 +262,7 @@ def bilstm(epoch: int, batch_size: int, learning_rate: float, embedding_size: in
            hidden_size: int, max_len: Optional[int], lowercase: bool, tokenizer_type: Optional[str],
            monitor: str, early_stop: int, use_micro: bool, vocab_path: str, train_path: str,
            dev_path: str, test_path: str, save_dir: str, verbose: int, with_attention: bool,
-           distributed_training: bool, distributed_strategy: str):
+           distributed_training: bool, distributed_strategy: Optional[str]):
 
     params = Parameters({
         'learning_rate': learning_rate,

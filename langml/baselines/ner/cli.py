@@ -29,7 +29,7 @@ def train(
     model_instance: object, params: Parameters, epoch: int, save_dir: str,
     train_path: str, dev_path: str, test_path: str, vocab_path: str,
     tokenizer_type: str, lowercase: bool, max_len: int, batch_size: int,
-    distributed_training: bool, distributed_strategy: str,
+    distributed_training: bool, distributed_strategy: Optional[str],
     monitor: str, early_stop: int, verbose: int,
 ):
     # check distribute
@@ -179,7 +179,7 @@ def bert_crf(backbone: str, epoch: int, batch_size: int, learning_rate: float,
              tokenizer_type: Optional[str], config_path: str, ckpt_path: str,
              vocab_path: str, train_path: str, dev_path: str, test_path: str,
              save_dir: str, monitor: str, early_stop: int, verbose: int,
-             distributed_training: bool, distributed_strategy: str):
+             distributed_training: bool, distributed_strategy: Optional[str]):
 
     params = Parameters({
         'learning_rate': learning_rate,
@@ -222,7 +222,7 @@ def lstm_crf(epoch: int, batch_size: int, learning_rate: float, dropout_rate: fl
              lowercase: bool, tokenizer_type: Optional[str], vocab_path: str,
              train_path: str, dev_path: str, test_path: str, save_dir: str,
              monitor: str, early_stop: int, verbose: int, distributed_training: bool,
-             distributed_strategy: str):
+             distributed_strategy: Optional[str]):
 
     params = Parameters({
         'learning_rate': learning_rate,
