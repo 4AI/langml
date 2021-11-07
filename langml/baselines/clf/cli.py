@@ -122,6 +122,14 @@ def train(
     # restore best model
     model = model_instance.build_model()
     model.load_weights(os.path.join(save_dir, 'best_model.weights'))
+    # save model
+    info('start to save frozen')
+    save_frozen(model, os.path.join(save_dir, 'frozen_model'))
+    info('start to save label')
+    with open(os.path.join(save_dir, 'label2id.json'), 'w', encoding='utf-8') as writer:
+        json.dump(label2id, writer)
+    info('copy vocab')
+    copyfile(vocab_path, os.path.join(save_dir, 'vocab.txt'))
     # compute detail metrics
     info('done to training! start to compute detail metrics...')
     infer = Infer(model, tokenizer, id2label, is_bert=is_bert)
@@ -132,14 +140,6 @@ def train(
         _, _, test_cr = compute_detail_metrics(infer, test_data, use_micro=use_micro)
         print('test metrics:')
         print(test_cr)
-    # save model
-    info('start to save frozen')
-    save_frozen(model, os.path.join(save_dir, 'frozen_model'))
-    info('start to save label')
-    with open(os.path.join(save_dir, 'label2id.json'), 'w', encoding='utf-8') as writer:
-        json.dump(label2id, writer)
-    info('copy vocab')
-    copyfile(vocab_path, os.path.join(save_dir, 'vocab.txt'))
 
 
 @click.group()
