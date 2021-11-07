@@ -19,6 +19,7 @@ setup(
     version=__version__,
     description='A Keras-based and TensorFlow-backend language model toolkit.',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='seanlee',
     author_email='xmlee97@gmail.com',
     platforms=['all'],
