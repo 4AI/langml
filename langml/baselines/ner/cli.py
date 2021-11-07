@@ -29,7 +29,7 @@ def train(
     model_instance: object, params: Parameters, epoch: int, save_dir: str,
     train_path: str, dev_path: str, test_path: str, vocab_path: str,
     tokenizer_type: str, lowercase: bool, max_len: int, batch_size: int,
-    distributed_training: bool, distributed_strategy: Optional[str],
+    distributed_training: bool, distributed_strategy: str,
     monitor: str, early_stop: int, verbose: int,
 ):
     # check distribute
@@ -173,13 +173,13 @@ def ner():
 @click.option('--early_stop', type=int, default=10, help='patience to early stop')
 @click.option('--verbose', type=int, default=2, help='0 = silent, 1 = progress bar, 2 = one line per epoch')
 @click.option('--distributed_training', is_flag=True, default=False, help='distributed training')
-@click.option('--distributed_strategy', type=str, default=None, help='distributed training strategy')
+@click.option('--distributed_strategy', type=str, default='MirroredStrategy', help='distributed training strategy')
 def bert_crf(backbone: str, epoch: int, batch_size: int, learning_rate: float,
              dropout_rate: float, max_len: Optional[int], lowercase: bool,
              tokenizer_type: Optional[str], config_path: str, ckpt_path: str,
              vocab_path: str, train_path: str, dev_path: str, test_path: str,
              save_dir: str, monitor: str, early_stop: int, verbose: int,
-             distributed_training: bool, distributed_strategy: Optional[str]):
+             distributed_training: bool, distributed_strategy: str):
 
     params = Parameters({
         'learning_rate': learning_rate,
@@ -216,13 +216,13 @@ def bert_crf(backbone: str, epoch: int, batch_size: int, learning_rate: float,
 @click.option('--early_stop', type=int, default=10, help='patience to early stop')
 @click.option('--verbose', type=int, default=2, help='0 = silent, 1 = progress bar, 2 = one line per epoch')
 @click.option('--distributed_training', is_flag=True, default=False, help='distributed training')
-@click.option('--distributed_strategy', type=str, default=None, help='distributed training strategy')
+@click.option('--distributed_strategy', type=str, default='MirroredStrategy', help='distributed training strategy')
 def lstm_crf(epoch: int, batch_size: int, learning_rate: float, dropout_rate: float,
              embedding_size: int, hidden_size: int, max_len: Optional[int],
              lowercase: bool, tokenizer_type: Optional[str], vocab_path: str,
              train_path: str, dev_path: str, test_path: str, save_dir: str,
              monitor: str, early_stop: int, verbose: int, distributed_training: bool,
-             distributed_strategy: Optional[str]):
+             distributed_strategy: str):
 
     params = Parameters({
         'learning_rate': learning_rate,

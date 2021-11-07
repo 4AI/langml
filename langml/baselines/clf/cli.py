@@ -31,7 +31,7 @@ def train(
     model_instance: object, params: Parameters, epoch: int, save_dir: str,
     train_path: str, dev_path: str, test_path: str, vocab_path: str,
     tokenizer_type: str, lowercase: bool, max_len: int, batch_size: int,
-    distributed_training: bool, distributed_strategy: Optional[str],
+    distributed_training: bool, distributed_strategy: str,
     use_micro: bool, monitor: str, early_stop: int, verbose: int,
 ):
     # check distribute
@@ -173,12 +173,12 @@ def clf():
 @click.option('--save_dir', type=str, required=True, help='dir to save model')
 @click.option('--verbose', type=int, default=2, help='0 = silent, 1 = progress bar, 2 = one line per epoch')
 @click.option('--distributed_training', is_flag=True, default=False, help='distributed training')
-@click.option('--distributed_strategy', type=str, default=None, help='distributed training strategy')
+@click.option('--distributed_strategy', type=str, default='MirroredStrategy', help='distributed training strategy')
 def bert(backbone: str, epoch: int, batch_size: int, learning_rate: float, max_len: Optional[int],
          lowercase: bool, tokenizer_type: Optional[str], monitor: str, early_stop: int, use_micro: bool,
          config_path: str, ckpt_path: str, vocab_path: str, train_path: str, dev_path: str,
          test_path: str, save_dir: str, verbose: int, distributed_training: bool,
-         distributed_strategy: Optional[str]):
+         distributed_strategy: str):
 
     params = Parameters()
     params.add('learning_rate', learning_rate)
@@ -213,12 +213,12 @@ def bert(backbone: str, epoch: int, batch_size: int, learning_rate: float, max_l
 @click.option('--save_dir', type=str, required=True, help='dir to save model')
 @click.option('--verbose', type=int, default=2, help='0 = silent, 1 = progress bar, 2 = one line per epoch')
 @click.option('--distributed_training', is_flag=True, default=False, help='distributed training')
-@click.option('--distributed_strategy', type=str, default=None, help='distributed training strategy')
+@click.option('--distributed_strategy', type=str, default='MirroredStrategy', help='distributed training strategy')
 def textcnn(epoch: int, batch_size: int, learning_rate: float, embedding_size: int,
             filter_size: int, max_len: Optional[int], lowercase: bool, tokenizer_type: Optional[str],
             monitor: str, early_stop: int, use_micro: bool, vocab_path: str, train_path: str, dev_path: str,
             test_path: str, save_dir: str, verbose: int, distributed_training: bool,
-            distributed_strategy: Optional[str]):
+            distributed_strategy: str):
 
     params = Parameters({
         'learning_rate': learning_rate,
@@ -257,12 +257,12 @@ def textcnn(epoch: int, batch_size: int, learning_rate: float, embedding_size: i
 @click.option('--verbose', type=int, default=2, help='0 = silent, 1 = progress bar, 2 = one line per epoch')
 @click.option('--with_attention', is_flag=True, default=False, help='apply attention mechanism')
 @click.option('--distributed_training', is_flag=True, default=False, help='distributed training')
-@click.option('--distributed_strategy', type=str, default=None, help='distributed training strategy')
+@click.option('--distributed_strategy', type=str, default='MirroredStrategy', help='distributed training strategy')
 def bilstm(epoch: int, batch_size: int, learning_rate: float, embedding_size: int,
            hidden_size: int, max_len: Optional[int], lowercase: bool, tokenizer_type: Optional[str],
            monitor: str, early_stop: int, use_micro: bool, vocab_path: str, train_path: str,
            dev_path: str, test_path: str, save_dir: str, verbose: int, with_attention: bool,
-           distributed_training: bool, distributed_strategy: Optional[str]):
+           distributed_training: bool, distributed_strategy: str):
 
     params = Parameters({
         'learning_rate': learning_rate,
