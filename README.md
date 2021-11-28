@@ -57,7 +57,7 @@ train_model.compile(loss='categorical_crossentropy', optimizer=keras.optimizer.A
 To train a bert classifier, just one line:
 
 ```bash
-$ langml-cli baseline clf bert --backbone bert --config_path /path/to/bert_config.json --ckpt_path /path/to/bert_model.ckpt --vocab_path /path/to/vocab.txt --train_path /path/to/train.jsonl --dev_path /path/to/dev.jsonl --verbose 2
+$ langml-cli baseline clf bert --backbone bert --config_path /path/to/bert_config.json --ckpt_path /path/to/bert_model.ckpt --vocab_path /path/to/vocab.txt --train_path /path/to/train.jsonl --dev_path /path/to/dev.jsonl --save_dir model --verbose 2
 ```
 
 ## Prompt-Based Tuning
