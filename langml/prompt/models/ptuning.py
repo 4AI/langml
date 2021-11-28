@@ -2,6 +2,9 @@
 
 
 """ Implementation P-Tuning
+
+Paper: GPT Understands, Too
+URL: https://arxiv.org/pdf/2103.10385.pdf
 """
 
 from typing import List, Optional, Union
