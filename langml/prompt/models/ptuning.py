@@ -62,6 +62,18 @@ class PTuniningPrompt(BasePromptModel):
     def __init__(self, plm_backbone: str, plm_config_path: str, plm_ckpt_path: str,
                  template: Template, learning_rate: float = 0.00001,
                  freeze_plm: bool = True, encoder: str = 'mlp') -> None:
+        """ PTuning Prompt Model
+        Args:
+          - plm_backbone: str, backbone of pretrained language model
+          - plm_config_path: str, configure path of pretrained language model
+          - plm_ckpt_path: str, checkpoint path of pretrained language model
+          - template: List[str], template
+          - label_tokens_map: str, verbalizer, map of label to tokens
+          - tokenizer: langml.Tokenizer, tokenizer
+          - learning_rate: float, learning rate
+          - freeze_plm: bool, whether to freeze pretrained language model weights
+          - encoder: str, template encoder, [`mlp`, `lstm`], default `mlp`
+        """
         self.encoder = encoder.lower()
         super().__init__(
             plm_backbone, plm_config_path, plm_ckpt_path, template,
