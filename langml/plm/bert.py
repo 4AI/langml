@@ -149,12 +149,16 @@ class BERT:
                  inputs: Optional[Union[Tuple, List]] = None,
                  return_model: bool = True,
                  with_mlm: bool = True,
-                 with_nsp: bool = True) -> Models:
+                 with_nsp: bool = True,
+                 custom_embedding_callback: Optional[Callable] = None) -> Models:
         if inputs is None:
             inputs = self.get_inputs()
         assert isinstance(inputs, (tuple, list)) and len(inputs) > 1, '`inputs` should be a tuple/list consisting of placeholders and stores token, segment, and masked placeholders respectively.  Note that the masked placeholder is optional for finetuning.' # NOQA
         # embedding
-        embedding, embedding_weights = self.get_embedding(inputs)
+        if custom_embedding_callback is not None:
+            embedding, embedding_weights = custom_embedding_callback(inputs)
+        else:
+            embedding, embedding_weights = self.get_embedding(inputs)
         x = self.embedding_norm_layer(embedding)
         x = self.embedding_dropout_layer(x)
         if self.is_embedding_mapping:
