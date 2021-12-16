@@ -26,7 +26,7 @@ def merge_template_tokens(
     """
     token_ids = [token_ids[0]] + template_ids + token_ids[1:-1]
     if max_length:
-        token_ids = token_ids[:max_length - 1] + token_ids[-1]
+        token_ids = token_ids[:max_length - 1] + [token_ids[-1]]
     template_mask = [0] + [1] * len(template_ids) + [0] * (len(token_ids) - len(template_ids) - 1)
     return token_ids,  template_mask
 
