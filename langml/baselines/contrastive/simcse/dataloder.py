@@ -56,7 +56,7 @@ class DataLoader(BaseDataLoader):
                     texts = [obj['text']]
                 for text in texts:
                     if apply_aeda:
-                        augmented_text = aeda_augment(aeda_tokenize(text), aeda_language)
+                        augmented_text = aeda_augment(aeda_tokenize(text), language=aeda_language)
                     data.append((text, augmented_text))
         return data, data_with_label
 

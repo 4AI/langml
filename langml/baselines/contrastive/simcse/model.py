@@ -26,34 +26,36 @@ class SimCSE(BaselineModel):
         else:
             self.load_plm = load_bert
 
-    def get_pooling_output(model: Models, pooling_strategy: str = 'cls'):
+    def get_pooling_output(self, model: Models, pooling_strategy: str = 'cls'):
         """ get pooling output
         Args:
         model: keras.Model, BERT model
         pooling_strategy: str, specify pooling strategy from ['cls', 'first-last-avg', 'last-avg'], default `cls`
         """
         assert pooling_strategy in ['cls', 'first-last-avg', 'last-avg']
-        outputs, idx = [], 0
+
+        if pooling_strategy == 'cls':
+            return L.Lambda(lambda x: x[:, 0], name='cls')(model.output)
+
+        outputs, idx = [], 1
         while True:
             try:
                 output = model.get_layer(
                     'Transformer-%d-FeedForward-Norm' % idx
-                ).output
+                ).get_output_at(0)
                 outputs.append(output)
                 idx += 1
             except Exception:
                 break
 
-        if pooling_strategy == 'cls':
-            output = keras.layers.Lambda(lambda x: x[:, 0])(outputs[-1])
-        elif pooling_strategy == 'first-last-avg':
+        if pooling_strategy == 'first-last-avg':
             outputs = [
                 L.GlobalAveragePooling1D()(outputs[0]),
                 L.GlobalAveragePooling1D()(outputs[-1])
             ]
-            output = keras.layers.Average()(outputs)
+            output = L.Average(name=pooling_strategy)(outputs)
         elif pooling_strategy == 'last-avg':
-            output = keras.layers.GlobalAveragePooling1D()(outputs[-1])
+            output = L.GlobalAveragePooling1D(name=pooling_strategy)(outputs[-1])
         else:
             raise NotImplementedError
 
@@ -75,14 +77,12 @@ class SimCSE(BaselineModel):
         augmented_output = self.get_pooling_output(augmented_model, pooling_strategy)
 
         l2_normalize = L.Lambda(lambda x: K.l2_normalize(x, axis=1), name='l2_norm')
-        output = l2_normalize(output)
-        augmented_output = l2_normalize(augmented_output)
         similarity = L.Lambda(
             lambda x: K.dot(x[0], K.transpose(x[1]) / self.params.temperature),
             name='similarity'
-        )([output, augmented_output])
+        )([l2_normalize(output), l2_normalize(augmented_output)])
 
-        encoder = keras.Model(inputs=model.input, outputs=[model.output])
+        encoder = keras.Model(inputs=model.input, outputs=[output])
         train_model = keras.Model((*model.input, *augmented_model.input), similarity)
         train_model.summary()
         train_model.compile(keras.optimizers.Adam(self.params.learning_rate),

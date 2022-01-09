@@ -26,14 +26,14 @@ def contrastive():
 @contrastive.command()
 @click.option('--backbone', type=str, default='bert',
               help='specify backbone: bert | roberta | albert')
-@click.option('--epoch', type=int, default=5, help='epochs')
+@click.option('--epoch', type=int, default=1, help='epochs')
 @click.option('--batch_size', type=int, default=32, help='batch size')
 @click.option('--learning_rate', type=float, default=2e-5, help='learning rate')
 @click.option('--temperature', type=float, default=5e-2, help='temperature')
 @click.option('--pooling_strategy', type=str, default='cls',
               help='specify pooling_strategy from ["cls", "first-last-avg", "last-avg"]')
 @click.option('--max_len', type=int, default=512, help='max len')
-@click.option('--early_stop', type=int, default=3, help='patience of early stop')
+@click.option('--early_stop', type=int, default=1, help='patience of early stop')
 @click.option('--monitor', type=str, default='loss', help='metrics monitor')
 @click.option('--lowercase', is_flag=True, default=False, help='do lowercase')
 @click.option('--tokenizer_type', type=str, default=None,
@@ -138,15 +138,16 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, tem
         del strategy
     K.clear_session()
     # restore best model
-    model = model_instance.build_model()
+    model, encoder = model_instance.build_model()
     model.load_weights(os.path.join(save_dir, 'best_model.weights'))
     # save model
     info('start to save frozen')
     save_frozen(model, os.path.join(save_dir, 'frozen_model'))
+    save_frozen(encoder, os.path.join(save_dir, 'frozen_encoder_model'))
     info('copy vocab')
     copyfile(vocab_path, os.path.join(save_dir, 'vocab.txt'))
     # compute corrcoef
     if do_evaluate and data_with_label:
         info('done to training! start to compute metrics...')
         evaluator = Evaluator(encoder, tokenizer)
-        info('corrcoef:', evaluator.compute_corrcoef(data_with_label))
+        info(f'corrcoef: {evaluator.compute_corrcoef(data_with_label)}')
