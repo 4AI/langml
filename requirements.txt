@@ -1,6 +1,5 @@
 typeguard
 Keras>=2.3.1
-tensorflow
 numpy
 click
 boltons
@@ -8,3 +7,4 @@ tokenizers
 sklearn
 seqeval
 sentencepiece
+scipy
