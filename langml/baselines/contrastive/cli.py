@@ -30,6 +30,8 @@ def contrastive():
 @click.option('--batch_size', type=int, default=32, help='batch size')
 @click.option('--learning_rate', type=float, default=2e-5, help='learning rate')
 @click.option('--temperature', type=float, default=5e-2, help='temperature')
+@click.option('--pooling_strategy', type=str, default='cls',
+              help='specify pooling_strategy from ["cls", "first-last-avg", "last-avg"]')
 @click.option('--max_len', type=int, default=512, help='max len')
 @click.option('--early_stop', type=int, default=3, help='patience of early stop')
 @click.option('--monitor', type=str, default='loss', help='metrics monitor')
@@ -48,7 +50,7 @@ def contrastive():
 @click.option('--distributed_training', is_flag=True, default=False, help='distributed training')
 @click.option('--distributed_strategy', type=str, default='MirroredStrategy', help='distributed training strategy')
 def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, temperature: float,
-           max_len: Optional[int], early_stop: int, monitor: str, lowercase: bool,
+           pooling_strategy: str, max_len: Optional[int], early_stop: int, monitor: str, lowercase: bool,
            tokenizer_type: Optional[str], config_path: str, ckpt_path: str, vocab_path: str,
            train_path: str, save_dir: str, verbose: int, apply_aeda: bool, aeda_language: str,
            do_evaluate: bool, distributed_training: bool, distributed_strategy: str):
@@ -99,9 +101,9 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, tem
     if distributed_training:
         strategy = getattr(tf.distribute, distributed_strategy)()
         with strategy.scope():
-            model, encoder = model_instance.build_model(lazy_restore=True)
+            model, encoder = model_instance.build_model(pooling_strategy=pooling_strategy, lazy_restore=True)
     else:
-        model, encoder = model_instance.build_model()
+        model, encoder = model_instance.build_model(pooling_strategy=pooling_strategy)
 
     early_stop_callback = keras.callbacks.EarlyStopping(
         monitor=monitor,
