@@ -29,6 +29,7 @@ def contrastive():
 @click.option('--epoch', type=int, default=1, help='epochs')
 @click.option('--batch_size', type=int, default=32, help='batch size')
 @click.option('--learning_rate', type=float, default=2e-5, help='learning rate')
+@click.option('--dropout_rate', type=float, default=0.1, help='dropout rate')
 @click.option('--temperature', type=float, default=5e-2, help='temperature')
 @click.option('--pooling_strategy', type=str, default='cls',
               help='specify pooling_strategy from ["cls", "first-last-avg", "last-avg"]')
@@ -49,14 +50,16 @@ def contrastive():
 @click.option('--do_evaluate', is_flag=True, default=False, help='do evaluation')
 @click.option('--distributed_training', is_flag=True, default=False, help='distributed training')
 @click.option('--distributed_strategy', type=str, default='MirroredStrategy', help='distributed training strategy')
-def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, temperature: float,
-           pooling_strategy: str, max_len: Optional[int], early_stop: int, monitor: str, lowercase: bool,
-           tokenizer_type: Optional[str], config_path: str, ckpt_path: str, vocab_path: str,
-           train_path: str, save_dir: str, verbose: int, apply_aeda: bool, aeda_language: str,
-           do_evaluate: bool, distributed_training: bool, distributed_strategy: str):
+def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dropout_rate: float,
+           temperature: float, pooling_strategy: str, max_len: Optional[int], early_stop: int,
+           monitor: str, lowercase: bool, tokenizer_type: Optional[str], config_path: str,
+           ckpt_path: str, vocab_path: str, train_path: str, save_dir: str, verbose: int,
+           apply_aeda: bool, aeda_language: str, do_evaluate: bool, distributed_training: bool,
+           distributed_strategy: str):
 
     params = Parameters()
     params.add('learning_rate', learning_rate)
+    params.add('dropout_rate', dropout_rate)
     params.add('temperature', temperature)
     model_instance = SimCSE(config_path, ckpt_path, params, backbone=backbone)
 
@@ -67,6 +70,7 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, tem
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
+    aeda_tokenize = whitespace_tokenize
     if apply_aeda:
         assert aeda_language is not None, 'please specify aeda_language when specify --apply_aeda'
         if aeda_language == 'CN':
@@ -76,8 +80,6 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, tem
                 raise ValueError('In order to apply AEDA for chinese data, '
                                  'please run `pip install jieba` to install jieba package')
             aeda_tokenize = jieba.lcut
-        else:
-            aeda_tokenize = whitespace_tokenize
 
     data, data_with_label = DataLoader.load_data(
         train_path,

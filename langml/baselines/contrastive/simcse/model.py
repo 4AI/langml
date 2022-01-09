@@ -26,16 +26,20 @@ class SimCSE(BaselineModel):
         else:
             self.load_plm = load_bert
 
+        self.get_cls_lambda = L.Lambda(lambda x: x[:, 0], name='cls')
+        self.get_first_last_avg_lambda = L.Average(name='first-last-avg')
+        self.get_last_avg_lambda = L.Lambda(lambda x: K.mean(x, axis=1), name='last-avg')
+
     def get_pooling_output(self, model: Models, pooling_strategy: str = 'cls'):
         """ get pooling output
         Args:
-        model: keras.Model, BERT model
-        pooling_strategy: str, specify pooling strategy from ['cls', 'first-last-avg', 'last-avg'], default `cls`
+          model: keras.Model, BERT model
+          pooling_strategy: str, specify pooling strategy from ['cls', 'first-last-avg', 'last-avg'], default `cls`
         """
         assert pooling_strategy in ['cls', 'first-last-avg', 'last-avg']
 
         if pooling_strategy == 'cls':
-            return L.Lambda(lambda x: x[:, 0], name='cls')(model.output)
+            return self.get_cls_lambda(model.output)
 
         outputs, idx = [], 1
         while True:
@@ -50,12 +54,12 @@ class SimCSE(BaselineModel):
 
         if pooling_strategy == 'first-last-avg':
             outputs = [
-                L.GlobalAveragePooling1D()(outputs[0]),
-                L.GlobalAveragePooling1D()(outputs[-1])
+                L.Lambda(lambda x: K.mean(x, axis=1))(outputs[0]),
+                L.Lambda(lambda x: K.mean(x, axis=1))(outputs[-1])
             ]
-            output = L.Average(name=pooling_strategy)(outputs)
+            output = self.get_first_last_avg_lambda(outputs)
         elif pooling_strategy == 'last-avg':
-            output = L.GlobalAveragePooling1D(name=pooling_strategy)(outputs[-1])
+            output = self.get_last_avg_lambda(outputs[-1])
         else:
             raise NotImplementedError
 
@@ -66,7 +70,7 @@ class SimCSE(BaselineModel):
         if lazy_restore:
             model, bert, restore_bert_weights = self.load_plm(self.config_path, self.ckpt_path, lazy_restore=True)
         else:
-            model, bert = self.load_plm(self.config_path, self.ckpt_path)
+            model, bert = self.load_plm(self.config_path, self.ckpt_path, dropout_rate=self.params.dropout_rate)
 
         augmented_text_in = L.Input(shape=(None, ), name='Input-Augmented-Token')
         augmented_segment_in = L.Input(shape=(None, ), name='Input-Augmented-Segment')
