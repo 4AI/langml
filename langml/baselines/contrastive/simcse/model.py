@@ -30,10 +30,11 @@ class SimCSE(BaselineModel):
         self.get_first_last_avg_lambda = L.Average(name='first-last-avg')
         self.get_last_avg_lambda = L.Lambda(lambda x: K.mean(x, axis=1), name='last-avg')
 
-    def get_pooling_output(self, model: Models, pooling_strategy: str = 'cls'):
+    def get_pooling_output(self, model: Models, output_index: int, pooling_strategy: str = 'cls'):
         """ get pooling output
         Args:
           model: keras.Model, BERT model
+          output_index: int, specify output index of feedforward layer.
           pooling_strategy: str, specify pooling strategy from ['cls', 'first-last-avg', 'last-avg'], default `cls`
         """
         assert pooling_strategy in ['cls', 'first-last-avg', 'last-avg']
@@ -46,7 +47,7 @@ class SimCSE(BaselineModel):
             try:
                 output = model.get_layer(
                     'Transformer-%d-FeedForward-Norm' % idx
-                ).get_output_at(0)
+                ).get_output_at(output_index)
                 outputs.append(output)
                 idx += 1
             except Exception:
@@ -77,8 +78,8 @@ class SimCSE(BaselineModel):
         augmented_text, augmented_segment = augmented_text_in, augmented_segment_in
         augmented_model = bert(inputs=[augmented_text, augmented_segment])
 
-        output = self.get_pooling_output(model, pooling_strategy)
-        augmented_output = self.get_pooling_output(augmented_model, pooling_strategy)
+        output = self.get_pooling_output(model, 0, pooling_strategy)
+        augmented_output = self.get_pooling_output(augmented_model, 1, pooling_strategy)
 
         l2_normalize = L.Lambda(lambda x: K.l2_normalize(x, axis=1), name='l2_norm')
         similarity = L.Lambda(
