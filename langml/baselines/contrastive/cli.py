@@ -148,7 +148,7 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dro
         del strategy
     K.clear_session()
     # restore best model
-    model, encoder = model_instance.build_model()
+    model, encoder = model_instance.build_model(pooling_strategy=pooling_strategy)
     model.load_weights(os.path.join(save_dir, 'best_model.weights'))
     # save model
     info('start to save frozen')
