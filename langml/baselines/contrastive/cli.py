@@ -43,6 +43,7 @@ def contrastive():
 @click.option('--ckpt_path', type=str, required=True, help='bert checkpoint path')
 @click.option('--vocab_path', type=str, required=True, help='bert vocabulary path')
 @click.option('--train_path', type=str, required=True, help='train path')
+@click.option('--test_path', type=str, required=False, default=None, help='test path')
 @click.option('--save_dir', type=str, required=True, help='dir to save model')
 @click.option('--verbose', type=int, default=2, help='0 = silent, 1 = progress bar, 2 = one line per epoch')
 @click.option('--apply_aeda', is_flag=True, default=False, help='apply AEDA to augment data')
@@ -53,9 +54,9 @@ def contrastive():
 def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dropout_rate: float,
            temperature: float, pooling_strategy: str, max_len: Optional[int], early_stop: int,
            monitor: str, lowercase: bool, tokenizer_type: Optional[str], config_path: str,
-           ckpt_path: str, vocab_path: str, train_path: str, save_dir: str, verbose: int,
-           apply_aeda: bool, aeda_language: str, do_evaluate: bool, distributed_training: bool,
-           distributed_strategy: str):
+           ckpt_path: str, vocab_path: str, train_path: str, test_path: str, save_dir: str,
+           verbose: int, apply_aeda: bool, aeda_language: str, do_evaluate: bool,
+           distributed_training: bool, distributed_strategy: str):
 
     params = Parameters()
     params.add('learning_rate', learning_rate)
@@ -81,14 +82,21 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dro
                                  'please run `pip install jieba` to install jieba package')
             aeda_tokenize = jieba.lcut
 
-    data, data_with_label = DataLoader.load_data(
+    train_data, _ = DataLoader.load_data(
         train_path,
         apply_aeda=apply_aeda,
         aeda_tokenize=aeda_tokenize,
-        aeda_language=aeda_language
+        aeda_language=aeda_language,
     )
-    info(f'data size: {len(data)}')
-    info(f'data with label size: {len(data_with_label)}')
+    info(f'train data size: {len(train_data)}')
+    if test_path is not None:
+        _, test_data_with_label = DataLoader.load_data(
+            test_path,
+            apply_aeda=False,
+        )
+        info(f'test data size: {len(test_data_with_label)}')
+    else:
+        test_data_with_label = []
 
     # set tokenizer
     if tokenizer_type == 'wordpiece':
@@ -123,9 +131,9 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dro
 
     if distributed_training:
         info('distributed training! using `TFDataLoader`')
-        train_dataloader = TFDataLoader(data, tokenizer, batch_size=batch_size)
+        train_dataloader = TFDataLoader(train_data, tokenizer, batch_size=batch_size)
     else:
-        train_dataloader = DataLoader(data, tokenizer, batch_size=batch_size)
+        train_dataloader = DataLoader(train_data, tokenizer, batch_size=batch_size)
     train_dataset = train_dataloader(random=True)
 
     model.fit(train_dataset,
@@ -149,7 +157,7 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dro
     info('copy vocab')
     copyfile(vocab_path, os.path.join(save_dir, 'vocab.txt'))
     # compute corrcoef
-    if do_evaluate and data_with_label:
+    if do_evaluate and test_data_with_label:
         info('done to training! start to compute metrics...')
         evaluator = Evaluator(encoder, tokenizer)
-        info(f'corrcoef: {evaluator.compute_corrcoef(data_with_label)}')
+        info(f'test corrcoef: {evaluator.compute_corrcoef(test_data_with_label)}')
