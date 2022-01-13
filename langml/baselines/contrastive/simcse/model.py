@@ -3,7 +3,7 @@
 from langml import keras, K, L
 from langml.plm import load_albert, load_bert
 from langml.baselines import BaselineModel, Parameters
-from langml.tensor_typing import Models
+from langml.tensor_typing import Models, Tensors
 
 
 def simcse_loss(y_true, y_pred):
@@ -21,6 +21,7 @@ class SimCSE(BaselineModel):
         self.ckpt_path = ckpt_path
         self.params = params
         assert backbone in ['bert', 'roberta', 'albert']
+        self.backbone = backbone
         if backbone == 'albert':
             self.load_plm = load_albert
         else:
@@ -30,7 +31,7 @@ class SimCSE(BaselineModel):
         self.get_first_last_avg_lambda = L.Average(name='first-last-avg')
         self.get_last_avg_lambda = L.Lambda(lambda x: K.mean(x, axis=1), name='last-avg')
 
-    def get_pooling_output(self, model: Models, output_index: int, pooling_strategy: str = 'cls'):
+    def get_pooling_output(self, model: Models, output_index: int, pooling_strategy: str = 'cls') -> Tensors:
         """ get pooling output
         Args:
           model: keras.Model, BERT model
@@ -42,16 +43,30 @@ class SimCSE(BaselineModel):
         if pooling_strategy == 'cls':
             return self.get_cls_lambda(model.output)
 
-        outputs, idx = [], 1
-        while True:
-            try:
-                output = model.get_layer(
-                    'Transformer-%d-FeedForward-Norm' % idx
-                ).get_output_at(output_index)
-                outputs.append(output)
-                idx += 1
-            except Exception:
-                break
+        outputs, idx = [], 0
+        if self.backbone == 'albert':
+            while True:
+                try:
+                    output = model.get_layer('Transformer-FeedForward-Norm').get_output_at(idx)
+                    outputs.append(output)
+                    idx += 1
+                except Exception:
+                    break
+            N = len(outputs)
+            if output_index == 0:
+                outputs = outputs[:N // 2]
+            elif output_index == 1:
+                outputs = outputs[N // 2:]
+        else:
+            while True:
+                try:
+                    output = model.get_layer(
+                        'Transformer-%d-FeedForward-Norm' % idx
+                    ).get_output_at(output_index)
+                    outputs.append(output)
+                    idx += 1
+                except Exception:
+                    break
 
         if pooling_strategy == 'first-last-avg':
             outputs = [
