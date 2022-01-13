@@ -152,7 +152,6 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dro
     model.load_weights(os.path.join(save_dir, 'best_model.weights'))
     # save model
     info('start to save frozen')
-    save_frozen(model, os.path.join(save_dir, 'frozen_model'))
     save_frozen(encoder, os.path.join(save_dir, 'frozen_encoder_model'))
     info('copy vocab')
     copyfile(vocab_path, os.path.join(save_dir, 'vocab.txt'))
