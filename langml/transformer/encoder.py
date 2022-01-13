@@ -91,7 +91,7 @@ class TransformerEncoderBlock:
                                    feed_forward_activation=feed_forward_activation,
                                    dropout_rate=dropout_rate,
                                    trainable=trainable,
-                                   name=f'{name}-{i+1}')
+                                   name=f'{name}-{i}')
                 for i in range(blocks)
             ]
 
