@@ -291,7 +291,7 @@ def load_bert(config_path: str,
             print('Skip Embedding-Mapping')
             pass
         for i in range(config['num_hidden_layers']):
-            model.get_layer(name=bert.get_weight_name('Transformer-%d-MultiHeadSelfAttention' % (i + 1))).set_weights([
+            model.get_layer(name=bert.get_weight_name('Transformer-%d-MultiHeadSelfAttention' % i)).set_weights([
                 variables('bert/encoder/layer_%d/attention/self/query/kernel' % i),
                 variables('bert/encoder/layer_%d/attention/self/key/kernel' % i),
                 variables('bert/encoder/layer_%d/attention/self/value/kernel' % i),
@@ -302,18 +302,18 @@ def load_bert(config_path: str,
                 variables('bert/encoder/layer_%d/attention/output/dense/bias' % i),
             ])
             model.get_layer(name=bert.get_weight_name(
-                'Transformer-%d-MultiHeadSelfAttention-Norm' % (i + 1))
+                'Transformer-%d-MultiHeadSelfAttention-Norm' % i)
             ).set_weights([
                 variables('bert/encoder/layer_%d/attention/output/LayerNorm/gamma' % i),
                 variables('bert/encoder/layer_%d/attention/output/LayerNorm/beta' % i),
             ])
-            model.get_layer(name=bert.get_weight_name('Transformer-%d-FeedForward' % (i + 1))).set_weights([
+            model.get_layer(name=bert.get_weight_name('Transformer-%d-FeedForward' % i)).set_weights([
                 variables('bert/encoder/layer_%d/intermediate/dense/kernel' % i),
                 variables('bert/encoder/layer_%d/output/dense/kernel' % i),
                 variables('bert/encoder/layer_%d/intermediate/dense/bias' % i),
                 variables('bert/encoder/layer_%d/output/dense/bias' % i),
             ])
-            model.get_layer(name=bert.get_weight_name('Transformer-%d-FeedForward-Norm' % (i + 1))).set_weights([
+            model.get_layer(name=bert.get_weight_name('Transformer-%d-FeedForward-Norm' % i)).set_weights([
                 variables('bert/encoder/layer_%d/output/LayerNorm/gamma' % i),
                 variables('bert/encoder/layer_%d/output/LayerNorm/beta' % i),
             ])
