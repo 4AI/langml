@@ -25,7 +25,7 @@ LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend lang
 - Common and widely-used Keras layers: CRF, Attentions, Transformer
 - Pretrained Language Models: Bert, RoBERTa, ALBERT. Friendly designed interfaces and easy to implement downstream singleton, shared/unshared two-tower or multi-tower models.
 - Tokenizers: WPTokenizer (wordpiece), SPTokenizer (sentencepiece)
-- Baseline models: Text Classification, Named Entity Recognition. It's no need to write any code, and just need to preprocess the data into a specific format and use the "langml-cli" to train various baseline models.
+- Baseline models: Text Classification, Named Entity Recognition, Contrastive Learning. It's no need to write any code, and just need to preprocess the data into a specific format and use the "langml-cli" to train various baseline models.
 - Prompt-Based Tuning: PTuning
 
 
@@ -33,6 +33,7 @@ LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend lang
 <a href='#installation'></a>
 
 You can install or upgrade langml/langml-cli via the following command:
+
 ```bash
 pip install -U langml
 ```
