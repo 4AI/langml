@@ -43,7 +43,7 @@ pip install -U langml
 
 ## Set a Keras variant
 
-1) Use pure Keras
+1) Use pure Keras (default setting)
    
 ```bash
 export TF_KERAS=0
