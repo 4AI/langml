@@ -235,3 +235,65 @@ A Chinese example:
     --distributed_training       distributed training
     --distributed_strategy TEXT  distributed training strategy
     --help                       Show this message and exit.
+
+
+Contrastive Learning
+------------------------------------
+
+Prepare your data into `JSONLines` format:
+
+1) for evaulation, should include `text_left`, `text_right`, and `label` fields
+
+.. code-block:: json
+
+    {"text_left": "text left1", "text_right": "text right1", "label": "0/1"}
+    {"text_left": "text left1", "text_right": "text right2", "label": "0/1"}
+
+
+2) no need to evaluate, just provide `text` field.
+
+.. code-block:: json
+
+    {"text": "this is a text1"}
+    {"text": "this is a text2"}
+
+
+1. simcse
+
+.. code-block:: bash
+
+    $ langml-cli baseline contrastive simcse --help
+    Usage: langml baseline contrastive simcse [OPTIONS]
+
+    Options:
+        --backbone TEXT              specify backbone: bert | roberta | albert
+        --epoch INTEGER              epochs
+        --batch_size INTEGER         batch size
+        --learning_rate FLOAT        learning rate
+        --dropout_rate FLOAT         dropout rate
+        --temperature FLOAT          temperature
+        --pooling_strategy TEXT      specify pooling_strategy from ["cls", "first-
+                                    last-avg", "last-avg"]
+
+        --max_len INTEGER            max len
+        --early_stop INTEGER         patience of early stop
+        --monitor TEXT               metrics monitor
+        --lowercase                  do lowercase
+        --tokenizer_type TEXT        specify tokenizer type from [`wordpiece`,
+                                    `sentencepiece`]
+
+        --config_path TEXT           bert config path  [required]
+        --ckpt_path TEXT             bert checkpoint path  [required]
+        --vocab_path TEXT            bert vocabulary path  [required]
+        --train_path TEXT            train path  [required]
+        --test_path TEXT             test path
+        --save_dir TEXT              dir to save model  [required]
+        --verbose INTEGER            0 = silent, 1 = progress bar, 2 = one line per
+                                    epoch
+
+        --apply_aeda                 apply AEDA to augment data
+        --aeda_language TEXT         specify AEDA language, ["EN", "CN"]
+        --do_evaluate                do evaluation
+        --distributed_training       distributed training
+        --distributed_strategy TEXT  distributed training strategy
+        --help                       Show this message and exit.

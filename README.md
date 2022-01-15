@@ -10,6 +10,8 @@ LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend lang
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+  - [Set a Keras variant](#set-a-keras-variant)
+  - [Load pretrained language models](#load-pretrained-language-models)
   - [Finetune a model](#finetune-a-model)
   - [Use langml-cli to train baseline models](#use-langml-cli-to-train-baseline-models)
   - [Prompt-Based Tuning](#prompt-based-tuning)
@@ -38,11 +40,42 @@ pip install -U langml
 # Quick Start
 <a href='#quick-start'></a>
 
+## Set a Keras variant
+
+1) Use pure Keras
+   
+```bash
+export TF_KERAS=0
+```
+
+2) Use TensorFlow Keras
+
+```bash
+export TF_KERAS=1
+```
+
+
+## Load pretrained language models
+
+```python
+from langml import WPTokenizer, SPTokenizer
+from langml import load_bert, load_albert
+
+# load bert / roberta plm
+bert_model, bert = load_bert(config_path, checkpoint_path)
+# load albert plm
+albert_model, albert = load_albert(config_path, checkpoint_path)
+# load wordpiece tokenizer
+wp_tokenizer = WPTokenizer(vocab_path, lowercase)
+# load sentencepiece tokenizer
+sp_tokenizer = SPTokenizer(vocab_path, lowercase)
+```
+
 ## Finetune a model
 
 ```python
 from langml import keras, L
-from langml.plm import load_bert
+from langml import load_bert
 
 config_path = '/path/to/bert_config.json'
 ckpt_path = '/path/to/bert_model.ckpt'
@@ -60,10 +93,22 @@ train_model.compile(loss='categorical_crossentropy', optimizer=keras.optimizer.A
 
 ## Use langml-cli to train baseline models
 
-To train a bert classifier, just one line:
+1) Text Classification
 
 ```bash
-$ langml-cli baseline clf bert --backbone bert --config_path /path/to/bert_config.json --ckpt_path /path/to/bert_model.ckpt --vocab_path /path/to/vocab.txt --train_path /path/to/train.jsonl --dev_path /path/to/dev.jsonl --save_dir model --verbose 2
+$ langml-cli baseline clf --help
+```
+
+2) Named Entity Recognition
+
+```bash
+$ langml-cli baseline ner --help
+```
+
+3) Contrastive Learning
+
+```bash
+$ langml-cli baseline contrastive --help
 ```
 
 ## Prompt-Based Tuning
