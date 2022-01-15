@@ -5,7 +5,7 @@ import os
 import tensorflow as tf
 
 
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 TF_VERSION = int(tf.__version__.split('.')[0])
 TF_KERAS = int(os.getenv('TF_KERAS', 0)) == 1
