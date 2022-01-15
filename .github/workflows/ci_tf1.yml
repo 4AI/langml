@@ -1,0 +1,31 @@
+name: Tensorflow1.x Test
+
+on: [push]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        pip install -U pip
+        pip install 'tensorflow<2.0'
+        pip install 'keras==2.3.1'
+        pip install -r dev-requirements.txt
+        pip install -e .
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        flake8 --config setup.cfg
+    - name: Test with pytest
+      run: |
+        pytest --cov tests
+        export TF_KERAS=1; pytest --cov tests
