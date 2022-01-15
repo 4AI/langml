@@ -18,6 +18,7 @@ jobs:
       run: |
         pip install -U pip
         pip install 'tensorflow<2.0'
+        pip install 'keras==2.3.1'
         pip install -r dev-requirements.txt
         pip install -e .
     - name: Lint with flake8
@@ -27,3 +28,4 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov tests
+        export TF_KERAS=1 pytest --cov tests
