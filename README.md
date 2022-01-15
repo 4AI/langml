@@ -1,12 +1,18 @@
+<p align='center'><img src='docs/langml-logo.png' width=480 /></p>
+
 LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend language model toolkit, which provides mainstream pre-trained language models, e.g., BERT/RoBERTa/ALBERT, and their downstream application models.
 
 
 [![pypi](https://img.shields.io/pypi/v/langml?style=for-the-badge)](https://pypi.org/project/langml/) [![](https://img.shields.io/badge/tensorflow-1.14+,2.x-orange.svg?style=for-the-badge#from=url&id=tVzOp&margin=%5Bobject%20Object%5D&originHeight=28&originWidth=197&originalType=binary&ratio=1&status=done&style=none)](https://code.alipay.com/riskstorm/langml/blob/master/) [![](https://img.shields.io/badge/keras-2.3.1+-blue.svg?style=for-the-badge#from=url&id=AIJ4T&margin=%5Bobject%20Object%5D&originHeight=28&originWidth=132&originalType=binary&ratio=1&status=done&style=none)](https://code.alipay.com/riskstorm/langml/blob/master/)
 
 # Outline
+- [Outline](#outline)
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+  - [Finetune a model](#finetune-a-model)
+  - [Use langml-cli to train baseline models](#use-langml-cli-to-train-baseline-models)
+  - [Prompt-Based Tuning](#prompt-based-tuning)
 - [Documentation](#documentation)
 - [Reference](#reference)
 
