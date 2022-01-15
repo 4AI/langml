@@ -28,4 +28,4 @@ jobs:
     - name: Test with pytest
       run: |
         pytest --cov tests
-        export TF_KERAS=1 pytest --cov tests
+        export TF_KERAS=1; pytest --cov tests
