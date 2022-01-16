@@ -34,7 +34,8 @@ class DataLoader(BaseDataLoader):
     def load_data(fpath: str,
                   apply_aeda: bool = True,
                   aeda_tokenize: Callable = whitespace_tokenize,
-                  aeda_language: str = 'EN') -> List[Tuple[str, str]]:
+                  aeda_language: str = 'EN') -> Tuple[
+                      List[Tuple[str, str]], List[Tuple[str, str, int]]]:
         """
         Args:
           fpath: str, path of data

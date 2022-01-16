@@ -12,7 +12,7 @@ from langml.baselines import Parameters
 from langml.tokenizer import WPTokenizer, SPTokenizer
 from langml.model import save_frozen
 from langml.utils import auto_tokenizer
-from langml.baselines.contrastive import Evaluator
+from langml.common.evaluator import SpearmanEvaluator
 from langml.baselines.contrastive.utils import whitespace_tokenize
 from langml.baselines.contrastive.simcse import SimCSE, DataLoader, TFDataLoader
 
@@ -158,5 +158,5 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dro
     # compute corrcoef
     if do_evaluate and test_data_with_label:
         info('done to training! start to compute metrics...')
-        evaluator = Evaluator(encoder, tokenizer)
+        evaluator = SpearmanEvaluator(encoder, tokenizer)
         info(f'test corrcoef: {evaluator.compute_corrcoef(test_data_with_label)}')
