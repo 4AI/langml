@@ -7,6 +7,11 @@ import tensorflow as tf
 
 from langml.log import warn
 from langml.tokenizer import Tokenizer, WPTokenizer, SPTokenizer
+from langml import TF_KERAS
+if TF_KERAS:
+    from tensorflow.keras.preprocessing.sequence import pad_sequences  # NOQA
+else:
+    from keras.preprocessing.sequence import pad_sequences  # NOQA
 
 
 def deprecated_warning(msg='this function is deprecated! it might be removed in a future version.'):
