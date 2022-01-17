@@ -3,7 +3,8 @@
 import json
 import math
 from random import shuffle
-from typing import List, Tuple
+from typing import Dict, List, Optional, Tuple, Union
+from collections import defaultdict
 
 import numpy as np
 import tensorflow as tf
@@ -26,11 +27,18 @@ class DataLoader(BaseDataLoader):
         return math.ceil(len(self.data) / self.batch_size)
 
     @staticmethod
-    def load_data(fpath: str) -> List[Tuple[str, str, int]]:
+    def load_data(fpath: str,
+                  build_vocab: bool = False,
+                  label2idx: Optional[Dict] = None) -> Union[
+                      List[Tuple[str, str, int]], Tuple[List[Tuple[str, str, int]], Dict]]:
         """
         Args:
           fpath: str, path of data
+          build_vocab: bool, whether to build vocabulary
+          label2idx: Optional[Dict], label to index dict
         """
+        if build_vocab:
+            label2idx = defaultdict(int)
         data = []
         with open(fpath, 'r', encoding='utf-8') as reader:
             for line in reader:
@@ -38,7 +46,17 @@ class DataLoader(BaseDataLoader):
                 if not line:
                     continue
                 obj = json.loads(line)
-                data.append((obj['text_left'], obj['text_right'], int(obj['label'])))
+                label = obj['label']
+                if build_vocab:
+                    if label not in label2idx:
+                        label2idx[label] = len(label2idx)
+                if label2idx is not None:
+                    label = label2idx[label]
+                else:
+                    label = float(label)
+                data.append((obj['text_left'], obj['text_right'], label))
+        if build_vocab:
+            return data, label2idx
         return data
 
     def make_iter(self, random: bool = False):
