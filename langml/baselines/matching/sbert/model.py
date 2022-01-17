@@ -70,10 +70,10 @@ class SentenceBert(BaselineModel):
         return self.get_avg_lambda(outputs)
 
     def build_model(self,
-                    architecture: str = 'regression',
+                    task: str = 'regression',
                     pooling_strategy: str = 'cls',
                     lazy_restore: bool = False) -> Models:
-        assert architecture in ['regression', 'classification']
+        assert task in ['regression', 'classification']
         assert pooling_strategy in ['cls', 'mean', 'max']
         if lazy_restore:
             model, bert, restore_bert_weights = self.load_plm(
@@ -90,7 +90,7 @@ class SentenceBert(BaselineModel):
         pooling = self.get_pooling_output(model, 0, pooling_strategy)
         right_pooling = self.get_pooling_output(right_model, 1, pooling_strategy)
 
-        if architecture == 'regression':
+        if task == 'regression':
             output = L.Dot(axes=1, normalize=True)([pooling, right_pooling])
             loss = 'mse'
         else:
