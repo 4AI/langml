@@ -154,7 +154,7 @@ def simcse(backbone: str, epoch: int, batch_size: int, learning_rate: float, dro
     info('start to save frozen')
     save_frozen(encoder, os.path.join(save_dir, 'frozen_encoder_model'))
     info('copy vocab')
-    copyfile(vocab_path, os.path.join(save_dir, 'vocab.txt'))
+    copyfile(vocab_path, os.path.join(save_dir, os.path.basename(vocab_path)))
     # compute corrcoef
     if do_evaluate and test_data_with_label:
         info('done to training! start to compute metrics...')
