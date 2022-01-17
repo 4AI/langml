@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 from typing import Optional
 from shutil import copyfile
 
@@ -58,7 +59,6 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
     params = Parameters()
     params.add('learning_rate', learning_rate)
     params.add('dropout_rate', dropout_rate)
-    model_instance = SentenceBert(config_path, ckpt_path, params, backbone=backbone)
 
     # check distribute
     if distributed_training:
@@ -67,13 +67,19 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    train_data = DataLoader.load_data(train_path)
-    dev_data = DataLoader.load_data(dev_path)
+    if architecture == 'classification':
+        train_data, label2idx = DataLoader.load_data(train_path, build_vocab=True)
+        info(f'label2idx: {label2idx}')
+        params.add('tag_size', len(label2idx))
+    else:
+        train_data = DataLoader.load_data(dev_path)
+        label2idx = None
+    dev_data = DataLoader.load_data(dev_path, label2idx=label2idx)
     info(f'train data size: {len(train_data)}')
     info(f'dev data size: {len(dev_data)}')
     test_data = None
     if test_path is not None:
-        test_data = DataLoader.load_data(test_path)
+        test_data = DataLoader.load_data(test_path, label2idx=label2idx)
         info(f'test data size: {len(test_data)}')
 
     # set tokenizer
@@ -85,6 +91,8 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
         # auto deduce
         tokenizer = auto_tokenizer(vocab_path, lowercase=lowercase)
     tokenizer.enable_truncation(max_length=max_len)
+
+    model_instance = SentenceBert(config_path, ckpt_path, params, backbone=backbone)
 
     if distributed_training:
         strategy = getattr(tf.distribute, distributed_strategy)()
@@ -138,8 +146,13 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
     # save model
     info('start to save frozen')
     save_frozen(encoder, os.path.join(save_dir, 'frozen_encoder_model'))
+    # save bert vocab
     info('copy vocab')
-    copyfile(vocab_path, os.path.join(save_dir, 'vocab.txt'))
+    copyfile(vocab_path, os.path.join(save_dir, os.path.basename(vocab_path)))
+    if architecture == 'classification':
+        # save label2idx
+        with open(os.path.join(save_dir, 'label2idx.json'), 'w') as writer:
+            json.dump(label2idx, writer, ensure_ascii=False)
     # compute corrcoef
     if test_data is not None:
         info('done to training! start to compute metrics...')
