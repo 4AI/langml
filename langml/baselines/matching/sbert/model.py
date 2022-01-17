@@ -98,7 +98,7 @@ class SentenceBert(BaselineModel):
                 pooling, right_pooling,
                 L.Lambda(lambda x: K.abs(x[0] - x[1]))([pooling, right_pooling])
             ])
-            output = L.Dense(2, activation='softmax')(output)
+            output = L.Dense(self.params.tag_size, activation='softmax')(output)
             loss = 'sparse_categorical_crossentropy'
 
         encoder = keras.Model(inputs=model.input, outputs=[pooling])
