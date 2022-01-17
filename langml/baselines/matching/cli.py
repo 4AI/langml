@@ -30,8 +30,8 @@ def matching():
 @click.option('--batch_size', type=int, default=32, help='batch size')
 @click.option('--learning_rate', type=float, default=2e-5, help='learning rate')
 @click.option('--dropout_rate', type=float, default=0.1, help='dropout rate')
-@click.option('--architecture', type=str, default='regression',
-              help='specify architecture from ["regression", "classification"]')
+@click.option('--task', type=str, default='regression',
+              help='specify task from ["regression", "classification"]')
 @click.option('--pooling_strategy', type=str, default='cls',
               help='specify pooling_strategy from ["cls", "mean", "max"]')
 @click.option('--max_len', type=int, default=512, help='max len')
@@ -51,7 +51,7 @@ def matching():
 @click.option('--distributed_training', is_flag=True, default=False, help='distributed training')
 @click.option('--distributed_strategy', type=str, default='MirroredStrategy', help='distributed training strategy')
 def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, dropout_rate: float,
-          architecture: str, pooling_strategy: str, max_len: Optional[int], early_stop: int, monitor: str,
+          task: str, pooling_strategy: str, max_len: Optional[int], early_stop: int, monitor: str,
           lowercase: bool, tokenizer_type: Optional[str], config_path: str, ckpt_path: str, vocab_path: str,
           train_path: str, dev_path: str, test_path: str, save_dir: str, verbose: int,
           distributed_training: bool, distributed_strategy: str):
@@ -67,7 +67,7 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    if architecture == 'classification':
+    if task == 'classification':
         train_data, label2idx = DataLoader.load_data(train_path, build_vocab=True)
         info(f'label2idx: {label2idx}')
         params.add('tag_size', len(label2idx))
@@ -98,10 +98,10 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
         strategy = getattr(tf.distribute, distributed_strategy)()
         with strategy.scope():
             model, encoder = model_instance.build_model(
-                architecture, pooling_strategy=pooling_strategy, lazy_restore=True)
+                task, pooling_strategy=pooling_strategy, lazy_restore=True)
     else:
         model, encoder = model_instance.build_model(
-            architecture, pooling_strategy=pooling_strategy, lazy_restore=True)
+            task, pooling_strategy=pooling_strategy, lazy_restore=True)
 
     early_stop_callback = keras.callbacks.EarlyStopping(
         monitor=monitor,
@@ -141,7 +141,7 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
         del strategy
     K.clear_session()
     # restore best model
-    model, encoder = model_instance.build_model(architecture, pooling_strategy=pooling_strategy)
+    model, encoder = model_instance.build_model(task, pooling_strategy=pooling_strategy)
     model.load_weights(os.path.join(save_dir, 'best_model.weights'))
     # save model
     info('start to save frozen')
@@ -149,7 +149,7 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
     # save bert vocab
     info('copy vocab')
     copyfile(vocab_path, os.path.join(save_dir, os.path.basename(vocab_path)))
-    if architecture == 'classification':
+    if task == 'classification':
         # save label2idx
         with open(os.path.join(save_dir, 'label2idx.json'), 'w') as writer:
             json.dump(label2idx, writer, ensure_ascii=False)
