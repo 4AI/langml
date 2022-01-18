@@ -72,7 +72,7 @@ def sbert(backbone: str, epoch: int, batch_size: int, learning_rate: float, drop
         info(f'label2idx: {label2idx}')
         params.add('tag_size', len(label2idx))
     else:
-        train_data = DataLoader.load_data(dev_path)
+        train_data = DataLoader.load_data(train_path)
         label2idx = None
     dev_data = DataLoader.load_data(dev_path, label2idx=label2idx)
     info(f'train data size: {len(train_data)}')
