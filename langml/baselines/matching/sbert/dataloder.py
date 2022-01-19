@@ -37,23 +37,33 @@ class DataLoader(BaseDataLoader):
           label2idx: Optional[Dict], label to index dict
         """
         if build_vocab:
-            label2idx = {}
-        data = []
+            label_set = set()
+
+        raw_data = []
         with open(fpath, 'r', encoding='utf-8') as reader:
             for line in reader:
                 line = line.strip()
                 if not line:
                     continue
                 obj = json.loads(line)
-                label = obj['label']
                 if build_vocab:
-                    if label not in label2idx:
-                        label2idx[label] = len(label2idx)
-                if label2idx is not None:
-                    label = label2idx.get(label, label)
-                else:
-                    label = float(label)
-                data.append((obj['text_left'], obj['text_right'], label))
+                    label_set.add(obj['label'])
+                raw_data.append((obj['text_left'], obj['text_right'], obj['label']))
+
+        if build_vocab:
+            labels = list(label_set)
+            # to compute Spearman's Rank Correlation Coefficient, labels must be sorted.
+            labels.sort()
+            label2idx = dict(zip(labels, range(len(labels))))
+
+        data = []
+        for text_left, text_right, label in raw_data:
+            if label2idx is not None:
+                label = label2idx.get(label, int(label))
+            else:
+                label = float(label)
+            data.append((text_left, text_right, label))
+
         if build_vocab:
             return data, label2idx
         return data
