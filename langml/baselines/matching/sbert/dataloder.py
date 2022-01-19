@@ -4,7 +4,6 @@ import json
 import math
 from random import shuffle
 from typing import Dict, List, Optional, Tuple, Union
-from collections import defaultdict
 
 import numpy as np
 import tensorflow as tf
@@ -38,7 +37,7 @@ class DataLoader(BaseDataLoader):
           label2idx: Optional[Dict], label to index dict
         """
         if build_vocab:
-            label2idx = defaultdict(int)
+            label2idx = {}
         data = []
         with open(fpath, 'r', encoding='utf-8') as reader:
             for line in reader:
@@ -51,7 +50,7 @@ class DataLoader(BaseDataLoader):
                     if label not in label2idx:
                         label2idx[label] = len(label2idx)
                 if label2idx is not None:
-                    label = label2idx[label]
+                    label = label2idx.get(label, label)
                 else:
                     label = float(label)
                 data.append((obj['text_left'], obj['text_right'], label))
