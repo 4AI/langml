@@ -4,7 +4,7 @@ numpy
 click
 boltons
 tokenizers
-sklearn
+scikit-learn
 seqeval
 sentencepiece
 scipy
