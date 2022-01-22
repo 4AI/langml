@@ -297,3 +297,58 @@ Prepare your data into `JSONLines` format:
         --distributed_training       distributed training
         --distributed_strategy TEXT  distributed training strategy
         --help                       Show this message and exit.
+
+
+Text Matching
+------------------------------------
+
+Prepare your data into `JSONLines` format, three fields `text_left`, `text_right`, and `label` are required.
+
+.. code-block:: json
+
+    {"text_left": "text left1", "text_right": "text right1", "label": "label1"}
+    {"text_left": "text left1", "text_right": "text right2", "label": "label2"}
+
+
+1. sentence bert
+
+For the regression task, the label should be a float value or an integer. For the classification task, the label should be an integer or a string value.
+
+.. code-block:: bash
+
+    $ langml-cli baseline matching sbert --help
+
+    Usage: langml baseline matching sbert [OPTIONS]
+
+    Options:
+        --backbone TEXT              specify backbone: bert | roberta | albert
+        --epoch INTEGER              epochs
+        --batch_size INTEGER         batch size
+        --learning_rate FLOAT        learning rate
+        --dropout_rate FLOAT         dropout rate
+        --task TEXT                  specify task from ["regression",
+                                    "classification"]
+
+        --pooling_strategy TEXT      specify pooling_strategy from ["cls", "mean",
+                                    "max"]
+
+        --max_len INTEGER            max len
+        --early_stop INTEGER         patience of early stop
+        --monitor TEXT               metrics monitor
+        --lowercase                  do lowercase
+        --tokenizer_type TEXT        specify tokenizer type from [`wordpiece`,
+                                    `sentencepiece`]
+
+        --config_path TEXT           bert config path  [required]
+        --ckpt_path TEXT             bert checkpoint path  [required]
+        --vocab_path TEXT            bert vocabulary path  [required]
+        --train_path TEXT            train path  [required]
+        --dev_path TEXT              dev path  [required]
+        --test_path TEXT             test path
+        --save_dir TEXT              dir to save model  [required]
+        --verbose INTEGER            0 = silent, 1 = progress bar, 2 = one line per
+                                    epoch
+
+        --distributed_training       distributed training
+        --distributed_strategy TEXT  distributed training strategy
+        --help                       Show this message and exit.

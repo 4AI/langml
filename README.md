@@ -112,6 +112,12 @@ $ langml-cli baseline ner --help
 $ langml-cli baseline contrastive --help
 ```
 
+4) Text Matching
+
+```bash
+$ langml-cli baseline matching --help
+```
+
 ## Prompt-Based Tuning
 
 Use Ptuning for text classification:
