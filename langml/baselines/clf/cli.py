@@ -129,7 +129,7 @@ def train(
     with open(os.path.join(save_dir, 'label2id.json'), 'w', encoding='utf-8') as writer:
         json.dump(label2id, writer)
     info('copy vocab')
-    copyfile(vocab_path, os.path.join(save_dir, 'vocab.txt'))
+    copyfile(vocab_path, os.path.join(save_dir, os.path.basename(vocab_path)))
     # compute detail metrics
     info('done to training! start to compute detail metrics...')
     infer = Infer(model, tokenizer, id2label, is_bert=is_bert)
