@@ -27,7 +27,7 @@ class TextCNNClassifier(BaselineModel):
             conv = L.Conv1D(filters=self.params.filter_size,
                             kernel_size=kernel_size,
                             strides=1,
-                            padding='valid',
+                            padding='same',
                             activation='relu')(x)
             conv = L.MaxPooling1D()(conv)
             conv = L.GlobalMaxPool1D()(conv)
