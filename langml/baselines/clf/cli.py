@@ -127,7 +127,7 @@ def train(
     save_frozen(model, os.path.join(save_dir, 'frozen_model'))
     info('start to save label')
     with open(os.path.join(save_dir, 'label2id.json'), 'w', encoding='utf-8') as writer:
-        json.dump(label2id, writer)
+        json.dump(label2id, writer, ensure_ascii=False)
     info('copy vocab')
     copyfile(vocab_path, os.path.join(save_dir, os.path.basename(vocab_path)))
     # compute detail metrics
