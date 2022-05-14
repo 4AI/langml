@@ -12,6 +12,8 @@ else:
     import keras.backend as K
     import keras.layers as L
 
+from langml.activations import relu2
+from langml.layers import SinusoidalPositionEmbedding, ScaleOffset
 from langml.tensor_typing import Tensors, Activation, Initializer, Constraint, Regularizer
 
 
@@ -575,3 +577,174 @@ class MultiHeadAttention(L.Layer):
             attention_shape = (*q_shape[:-1], self.head_num, v_shape[-1])
             return [output_shape, attention_shape]
         return output_shape
+
+
+class GatedAttentionUnit(L.Layer):
+    """ Gated Attention Unit
+    https://arxiv.org/abs/2202.10447
+    """
+    def __init__(self,
+                 attention_units: int,
+                 attention_activation: Activation = relu2,
+                 kernel_initializer: Initializer = 'glorot_normal',
+                 kernel_regularizer: Optional[Regularizer] = None,
+                 kernel_constraint: Optional[Constraint] = None,
+                 bias_initializer: Initializer = 'zeros',
+                 bias_regularizer: Optional[Regularizer] = None,
+                 bias_constraint: Optional[Constraint] = None,
+                 use_attention_bias: bool = True,
+                 use_relative_position: bool = True,
+                 use_offset: bool = True,
+                 use_scale: bool = True,
+                 **kwargs):
+        super(GatedAttentionUnit, self).__init__(**kwargs)
+
+        self.supports_masking = True
+
+        self.attention_units = attention_units
+        if isinstance(attention_activation, str):
+            self.attention_activation = keras.activations.get(attention_activation)
+        else:
+            self.attention_activation = attention_activation
+        self.kernel_initializer = keras.initializers.get(kernel_initializer)
+        self.kernel_regularizer = keras.regularizers.get(kernel_regularizer)
+        self.kernel_constraint = keras.constraints.get(kernel_constraint)
+        self.bias_initializer = keras.initializers.get(bias_initializer)
+        self.bias_regularizer = keras.regularizers.get(bias_regularizer)
+        self.bias_constraint = keras.constraints.get(bias_constraint)
+        self.use_attention_bias = use_attention_bias
+        self.use_relative_position = use_relative_position
+        self.use_offset = use_offset
+        self.use_scale = use_scale
+
+    def get_config(self) -> dict:
+        config = {
+            "attention_units": self.attention_units,
+            "attention_activation": keras.activations.serialize(self.attention_activation),
+            "kernel_initializer": keras.initializers.serialize(self.kernel_initializer),
+            "kernel_regularizer": keras.regularizers.serialize(self.kernel_regularizer),
+            "kernel_constraint": keras.constraints.serialize(self.kernel_constraint),
+            "bias_initializer": keras.initializers.serialize(self.bias_initializer),
+            "bias_regularizer": keras.regularizers.serialize(self.bias_regularizer),
+            "bias_constraint": keras.constraints.serialize(self.bias_constraint),
+            "use_attention_bias": self.use_attention_bias,
+            "use_relative_position": self.use_relative_position,
+            "use_offset": self.use_offset,
+            "use_scale": self.use_scale
+        }
+        base_config = super(GatedAttentionUnit, self).get_config()
+
+        return dict(base_config, **config)
+
+    def build(self, input_shape: Tensors):
+        super(GatedAttentionUnit, self).build(input_shape)
+
+        feature_dim = int(input_shape[-1])
+        self.Wu = self.add_weight(shape=(feature_dim, 2*feature_dim),
+                                  name=f'{self.name}_Wu',
+                                  initializer=self.kernel_initializer,
+                                  regularizer=self.kernel_regularizer,
+                                  constraint=self.kernel_constraint)
+        self.Wv = self.add_weight(shape=(feature_dim, 2*feature_dim),
+                                  name=f'{self.name}_Wv',
+                                  initializer=self.kernel_initializer,
+                                  regularizer=self.kernel_regularizer,
+                                  constraint=self.kernel_constraint)
+        self.Wz = self.add_weight(shape=(feature_dim, self.attention_units),
+                                  name=f'{self.name}_Wz',
+                                  initializer=self.kernel_initializer,
+                                  regularizer=self.kernel_regularizer,
+                                  constraint=self.kernel_constraint)
+        self.Wo = self.add_weight(shape=(2*feature_dim, feature_dim),
+                                  name=f'{self.name}_Wo',
+                                  initializer=self.kernel_initializer,
+                                  regularizer=self.kernel_regularizer,
+                                  constraint=self.kernel_constraint)
+        if self.use_attention_bias:
+            self.bu = self.add_weight(shape=(2*feature_dim,),
+                                      name=f'{self.name}_bu',
+                                      initializer=self.bias_initializer,
+                                      regularizer=self.bias_regularizer,
+                                      constraint=self.bias_constraint)
+            self.bv = self.add_weight(shape=(2*feature_dim,),
+                                      name=f'{self.name}_bv',
+                                      initializer=self.bias_initializer,
+                                      regularizer=self.bias_regularizer,
+                                      constraint=self.bias_constraint)
+            self.bz = self.add_weight(shape=(self.attention_units,),
+                                      name=f'{self.name}_bz',
+                                      initializer=self.bias_initializer,
+                                      regularizer=self.bias_regularizer,
+                                      constraint=self.bias_constraint)
+            self.bo = self.add_weight(shape=(feature_dim,),
+                                      name=f'{self.name}_bo',
+                                      initializer=self.bias_initializer,
+                                      regularizer=self.bias_regularizer,
+                                      constraint=self.bias_constraint)
+
+        self.scale_offset_q = ScaleOffset(scale=self.use_scale, offset=self.use_offset,
+                                          name=f'{self.name}_scale_offset_q')
+        self.scale_offset_k = ScaleOffset(scale=self.use_scale, offset=self.use_offset,
+                                          name=f'{self.name}_scale_offset_k')
+
+    def apply_rotary_position_embeddings(self, sinusoidal: Tensors, *tensors):
+        """ apply RoPE
+        modified from: https://github.com/bojone/bert4keras/blob/master/bert4keras/backend.py#L310
+        """
+        def align(tensor, axes, ndim=None):
+            assert len(axes) == K.ndim(tensor)
+            assert ndim or min(axes) >= 0
+            ndim = ndim or max(axes) + 1
+            indices = [None] * ndim
+            for i in axes:
+                indices[i] = slice(None)
+            return tensor[indices]
+
+        assert len(tensors) > 0, 'at least one input tensor'
+        assert all([
+            K.int_shape(tensor) == K.int_shape(tensors[0]) for tensor in tensors[1:]
+        ]), 'all tensors must have the same shape'
+        ndim = K.ndim(tensors[0])
+        sinusoidal = align(sinusoidal, [0, 1, -1], ndim)
+        cos_pos = K.repeat_elements(sinusoidal[..., 1::2], 2, -1)
+        sin_pos = K.repeat_elements(sinusoidal[..., ::2], 2, -1)
+        outputs = []
+        for tensor in tensors:
+            tensor2 = K.stack([-tensor[..., 1::2], tensor[..., ::2]], ndim)
+            tensor2 = K.reshape(tensor2, K.shape(tensor))
+            outputs.append(tensor * cos_pos + tensor2 * sin_pos)
+        return outputs[0] if len(outputs) == 1 else outputs
+
+    def attn(self, x: Tensors, v: Tensors) -> Tensors:
+        z = K.dot(x, self.Wz)
+        if self.use_attention_bias:
+            z += self.bz
+        q, k = self.scale_offset_q(z), self.scale_offset_k(z)
+        qk = K.batch_dot(q, k, axes=2)  # (B, N, S) * (B, M, S) -> (B, N, M)
+        if self.use_relative_position:
+            pos = SinusoidalPositionEmbedding(self.attention_units, "zero")(x)
+            q, k = self.apply_rotary_position_embeddings(pos, q, k)
+        a = self.attention_activation(qk)
+        return K.dot(a, v)  # (B, N, M) * (B, M, E) -> (B, N, E)
+
+    def call(self, inputs: Tensors, mask: Optional[Tensors] = None, **kwargs) -> Tensors:
+        u = K.dot(inputs, self.Wu)
+        v = K.dot(inputs, self.Wv)
+        if self.use_attention_bias:
+            u += self.bu
+            v += self.bv
+        x = u * self.attn(inputs, v)
+        o = K.dot(x, self.Wo)
+        if self.use_attention_bias:
+            o += self.bo
+        return inputs + o  # residual
+
+    def compute_mask(self, inputs: Tensors, mask: Optional[Tensors] = None) -> Tensors:
+        return mask
+
+    def compute_output_shape(self, input_shape: Tensors) -> Tensors:
+        return input_shape
+
+    @staticmethod
+    def get_custom_objects() -> dict:
+        return {'GatedAttentionUnit': GatedAttentionUnit}

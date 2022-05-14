@@ -5,7 +5,6 @@
 
 # TODO: Transformer Decoder
 
-import math
 from typing import Optional, List, Union, Any
 
 from langml import TF_KERAS
@@ -17,18 +16,7 @@ else:
     import keras
     import keras.backend as K
     import keras.layers as L
-
-from langml.tensor_typing import Number, Tensors, Activation, Initializer, Constraint, Regularizer
-
-
-def gelu(x: Number) -> Number:
-    r""" Gaussian Error Linear Units (GELUs)
-    https://arxiv.org/abs/1606.08415
-
-    $GELU(x) = 0.5x(1 + tanh[\sqrt(2 / \Pi) (x + 0.044715x^3)])$
-    """
-
-    return 0.5 * x * (1.0 + K.tanh(math.sqrt(2.0 / math.pi) * (x + 0.044715 * x**3)))
+from langml.tensor_typing import Tensors, Activation, Initializer, Constraint, Regularizer
 
 
 class FeedForward(L.Layer):

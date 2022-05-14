@@ -91,3 +91,11 @@ def test_multihead_attention_without_attn():
     X = L.Input(shape=(None, 64))
     o = MultiHeadAttention(8, return_attention=False)(X)
     assert K.int_shape(o) == K.int_shape(X)
+
+
+def test_gated_attention_unit():
+    from langml.layers import GatedAttentionUnit
+
+    X = L.Input(shape=(None, 64))
+    o = GatedAttentionUnit(32)(X)
+    assert K.int_shape(o) == K.int_shape(X)

@@ -7,11 +7,11 @@ else:
     import keras
 
 from langml.transformer.layers import (
-    gelu, FeedForward, SineCosinePositionEmbedding,
+    FeedForward, SineCosinePositionEmbedding,
 )
 
 
-custom_objects = {'gelu': gelu}
+custom_objects = {}
 custom_objects.update(FeedForward.get_custom_objects())
 custom_objects.update(SineCosinePositionEmbedding.get_custom_objects())
 
