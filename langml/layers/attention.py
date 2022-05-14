@@ -593,6 +593,7 @@ class GatedAttentionUnit(L.Layer):
                  bias_regularizer: Optional[Regularizer] = None,
                  bias_constraint: Optional[Constraint] = None,
                  use_attention_bias: bool = True,
+                 use_attention_scale: bool = True,
                  use_relative_position: bool = True,
                  use_offset: bool = True,
                  use_scale: bool = True,
@@ -613,6 +614,7 @@ class GatedAttentionUnit(L.Layer):
         self.bias_regularizer = keras.regularizers.get(bias_regularizer)
         self.bias_constraint = keras.constraints.get(bias_constraint)
         self.use_attention_bias = use_attention_bias
+        self.use_attention_scale = use_attention_scale
         self.use_relative_position = use_relative_position
         self.use_offset = use_offset
         self.use_scale = use_scale
@@ -628,6 +630,7 @@ class GatedAttentionUnit(L.Layer):
             "bias_regularizer": keras.regularizers.serialize(self.bias_regularizer),
             "bias_constraint": keras.constraints.serialize(self.bias_constraint),
             "use_attention_bias": self.use_attention_bias,
+            "use_attention_scale": self.use_attention_scale,
             "use_relative_position": self.use_relative_position,
             "use_offset": self.use_offset,
             "use_scale": self.use_scale
@@ -720,12 +723,14 @@ class GatedAttentionUnit(L.Layer):
         if self.use_attention_bias:
             z += self.bz
         q, k = self.scale_offset_q(z), self.scale_offset_k(z)
-        qk = K.batch_dot(q, k, axes=2)  # (B, N, S) * (B, M, S) -> (B, N, M)
         if self.use_relative_position:
             pos = SinusoidalPositionEmbedding(self.attention_units, "zero")(x)
             q, k = self.apply_rotary_position_embeddings(pos, q, k)
+        qk = K.batch_dot(q, k, axes=2)  # (B, N, S) * (B, M, S) -> (B, N, M)
+        if self.use_attention_scale:
+            qk /= self.attention_units**0.5
         a = self.attention_activation(qk)
-        return K.dot(a, v)  # (B, N, M) * (B, M, E) -> (B, N, E)
+        return K.batch_dot(a, v)  # (B, N, M) * (B, M, E) -> (B, N, E)
 
     def call(self, inputs: Tensors, mask: Optional[Tensors] = None, **kwargs) -> Tensors:
         u = K.dot(inputs, self.Wu)
