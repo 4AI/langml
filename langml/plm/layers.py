@@ -2,7 +2,6 @@
 
 from typing import Optional, List, Union
 
-import tensorflow as tf
 from langml import TF_KERAS
 if TF_KERAS:
     import tensorflow.keras as keras
@@ -129,61 +128,3 @@ class Masked(L.Layer):
         if self.return_masked:
             return [input_shape[0], (2, ) + input_shape[1]]
         return input_shape[0]
-
-
-class SinusoidalPositionEmbedding(L.Layer):
-    """ Sinusoidal Position Embedding
-    """
-    def __init__(self,
-                 output_dim: int,
-                 mode: str = 'add',
-                 mask_zero: bool = False,
-                 **kwargs):
-        super(SinusoidalPositionEmbedding, self).__init__(**kwargs)
-        assert mode in ['add', 'mul', 'zero'], f'not support mode `{mode}`, options: add | mul | zero'
-        self.output_dim = output_dim
-        self.mode = mode
-        self.supports_masking = mask_zero
-        self.mask_zero = mask_zero
-
-    def get_config(self):
-        config = {
-            "output_dim": self.output_dim,
-            "mode": self.mode,
-            "mask_zero": self.mask_zero
-        }
-        base_config = super(SinusoidalPositionEmbedding, self).get_config()
-        return dict(base_config, **config)
-
-    def call(self, inputs: Tensors) -> Tensors:
-        input_shape = K.shape(inputs)
-        batch_size, seq_len = input_shape[0], input_shape[1]
-        position_ids = K.arange(0, seq_len, dtype=K.floatx())[None]
-
-        indices = K.arange(0, self.output_dim // 2, dtype=K.floatx())
-        indices = K.pow(10000.0, -2 * indices / self.output_dim)
-        embeddings = tf.einsum('bn,d->bnd', position_ids, indices)
-        embeddings = K.stack([K.sin(embeddings), K.cos(embeddings)], axis=-1)
-        embeddings = K.reshape(embeddings, (-1, seq_len, self.output_dim))
-
-        if self.mode == 'add':
-            return inputs + embeddings
-        elif self.mode == 'mul':
-            return inputs * (embeddings + 1.0)
-        elif self.mode == 'zero':
-            return embeddings
-
-        embeddings = K.tile(embeddings, [batch_size, 1, 1])
-        return K.concatenate([inputs, embeddings])
-
-    def compute_mask(self, inputs: Tensors, mask: Optional[Tensors] = None) -> Tensors:
-        if self.mask_zero:
-            mask = K.not_equal(inputs, self.mask_zero)
-        return mask
-
-    def compute_output_shape(self, input_shape):
-        return input_shape[:2] + (self.output_dim,)
-
-    @staticmethod
-    def get_custom_objects() -> dict:
-        return {'SinusoidalPositionEmbedding': SinusoidalPositionEmbedding}

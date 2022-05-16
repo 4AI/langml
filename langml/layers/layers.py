@@ -212,7 +212,7 @@ class SineCosinePositionEmbedding(L.Layer):
               3D tensor with shape: `(batch_size, sequence_length, output_dim)`.
         """
         self.supports_masking = True
-        assert mode in ['expand', 'add', 'concat', 'zero'], f'not support mode `{mode}`, options: expand | add | concat | zero'
+        assert mode in ['expand', 'add', 'concat', 'zero'], 'please specify model from: expand|add|concat| zero'
         if mode in ['expand', 'concat']:
             if output_dim is None:
                 raise NotImplementedError(f'`output_dim` is required in `{mode}` mode')
@@ -235,7 +235,7 @@ class SineCosinePositionEmbedding(L.Layer):
     def get_custom_objects() -> dict:
         return {'SineCosinePositionEmbedding': SineCosinePositionEmbedding}
 
-    def compute_mask(self, inputs: Tensors, mask: Optional[Tensors] = None) -> Union[Tensors, None]:
+    def compute_mask(self, inputs: Tensors, mask: Optional[Tensors] = None) -> Tensors:
         return mask
 
     def compute_output_shape(self, input_shape: Tensors) -> Tensors:
