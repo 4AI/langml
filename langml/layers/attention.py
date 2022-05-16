@@ -353,8 +353,6 @@ class ScaledDotProductAttention(L.Layer):
                          List[Union[Tensors, None]], Tensors]:
         if isinstance(mask, list):
             mask = mask[0]
-        if self.return_attention:
-            return [mask, None]
         return mask
 
     @staticmethod
@@ -563,8 +561,6 @@ class MultiHeadAttention(L.Layer):
                      mask: Optional[Tensors] = None) -> Union[List[Union[Tensors, None]], Tensors]:
         if isinstance(mask, list):
             mask = mask[0]
-        if self.return_attention:
-            return [mask, None]
         return mask
 
     def compute_output_shape(self, input_shape: Union[Tensors, List[Tensors]]) -> Union[List[Tensors], Tensors]:
