@@ -13,7 +13,7 @@ else:
     import keras.layers as L
 
 from langml.activations import relu2
-from langml.layers import SinusoidalPositionEmbedding, ScaleOffset
+from langml.layers import SineCosinePositionEmbedding, ScaleOffset
 from langml.tensor_typing import Tensors, Activation, Initializer, Constraint, Regularizer
 
 
@@ -728,7 +728,7 @@ class GatedAttentionUnit(L.Layer):
         z = self.attention_activation(z)
         q, k = self.scale_offset_q(z), self.scale_offset_k(z)
         if self.use_relative_position:
-            pos = SinusoidalPositionEmbedding(self.attention_units, "zero")(x)
+            pos = SineCosinePositionEmbedding("zero", output_dim=self.attention_units)(x)
             q, k = self.apply_rotary_position_embeddings(pos, q, k)
         qk = K.batch_dot(q, k, axes=2)  # (B, N, S) * (B, M, S) -> (B, N, M)
         if self.use_attention_scale:
