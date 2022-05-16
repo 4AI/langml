@@ -9,7 +9,7 @@ else:
 from langml.layers.crf import CRF
 from langml.layers.layer_norm import LayerNorm
 from langml.layers.layers import (
-    AbsolutePositionEmbedding, SinusoidalPositionEmbedding, SineCosinePositionEmbedding, ScaleOffset
+    AbsolutePositionEmbedding, SineCosinePositionEmbedding, ScaleOffset
 )
 from langml.layers.attention import (
     SelfAttention, SelfAdditiveAttention,
@@ -19,7 +19,6 @@ from langml.layers.attention import (
 
 custom_objects = {}
 custom_objects.update(AbsolutePositionEmbedding.get_custom_objects())
-custom_objects.update(SinusoidalPositionEmbedding.get_custom_objects())
 custom_objects.update(SineCosinePositionEmbedding.get_custom_objects())
 custom_objects.update(ScaleOffset.get_custom_objects())
 custom_objects.update(CRF.get_custom_objects())
