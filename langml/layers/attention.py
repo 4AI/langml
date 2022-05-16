@@ -585,7 +585,8 @@ class GatedAttentionUnit(L.Layer):
     """
     def __init__(self,
                  attention_units: int,
-                 attention_activation: Activation = relu2,
+                 attention_activation: Activation = 'relu',
+                 attention_normalizer: Activation = relu2,
                  kernel_initializer: Initializer = 'glorot_normal',
                  kernel_regularizer: Optional[Regularizer] = None,
                  kernel_constraint: Optional[Constraint] = None,
@@ -603,10 +604,11 @@ class GatedAttentionUnit(L.Layer):
         self.supports_masking = True
 
         self.attention_units = attention_units
-        if isinstance(attention_activation, str):
-            self.attention_activation = keras.activations.get(attention_activation)
-        else:
-            self.attention_activation = attention_activation
+        self.attention_activation = keras.activations.get(attention_activation)
+        self.attention_normalizer = (
+            keras.activations.get(attention_normalizer)
+            if isinstance(attention_normalizer, str)
+            else attention_normalizer)
         self.kernel_initializer = keras.initializers.get(kernel_initializer)
         self.kernel_regularizer = keras.regularizers.get(kernel_regularizer)
         self.kernel_constraint = keras.constraints.get(kernel_constraint)
@@ -623,6 +625,7 @@ class GatedAttentionUnit(L.Layer):
         config = {
             "attention_units": self.attention_units,
             "attention_activation": keras.activations.serialize(self.attention_activation),
+            "attention_normalizer": keras.activations.serialize(self.attention_normalizer),
             "kernel_initializer": keras.initializers.serialize(self.kernel_initializer),
             "kernel_regularizer": keras.regularizers.serialize(self.kernel_regularizer),
             "kernel_constraint": keras.constraints.serialize(self.kernel_constraint),
@@ -722,6 +725,7 @@ class GatedAttentionUnit(L.Layer):
         z = K.dot(x, self.Wz)
         if self.use_attention_bias:
             z += self.bz
+        z = self.attention_activation(z)
         q, k = self.scale_offset_q(z), self.scale_offset_k(z)
         if self.use_relative_position:
             pos = SinusoidalPositionEmbedding(self.attention_units, "zero")(x)
@@ -729,7 +733,7 @@ class GatedAttentionUnit(L.Layer):
         qk = K.batch_dot(q, k, axes=2)  # (B, N, S) * (B, M, S) -> (B, N, M)
         if self.use_attention_scale:
             qk /= self.attention_units**0.5
-        a = self.attention_activation(qk)
+        a = self.attention_normalizer(qk)
         return K.batch_dot(a, v)  # (B, N, M) * (B, M, E) -> (B, N, E)
 
     def call(self, inputs: Tensors, mask: Optional[Tensors] = None, **kwargs) -> Tensors:
@@ -738,6 +742,8 @@ class GatedAttentionUnit(L.Layer):
         if self.use_attention_bias:
             u += self.bu
             v += self.bv
+        u = self.attention_activation(u)
+        v = self.attention_activation(v)
         x = u * self.attn(inputs, v)
         o = K.dot(x, self.Wo)
         if self.use_attention_bias:
