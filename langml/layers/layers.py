@@ -190,7 +190,7 @@ class SineCosinePositionEmbedding(L.Layer):
         input_shape = K.shape(inputs)
         batch_size, seq_len = input_shape[0], input_shape[1]
         output_dim = input_shape[2] if self.mode == 'add' else self.output_dim
-        if self.mode in ['add', 'concat']:
+        if self.mode in ['add', 'concat', 'zero']:
             pos_input = K.tile(K.expand_dims(K.arange(0, seq_len), axis=0), [batch_size, 1])
         else:
             pos_input = inputs
