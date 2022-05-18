@@ -6,13 +6,10 @@ if TF_KERAS:
 else:
     import keras
 
-from langml.transformer.layers import (
-    gelu, FeedForward, SineCosinePositionEmbedding,
-)
+from langml.transformer.layers import FeedForward
 
 
-custom_objects = {'gelu': gelu}
+custom_objects = {}
 custom_objects.update(FeedForward.get_custom_objects())
-custom_objects.update(SineCosinePositionEmbedding.get_custom_objects())
 
 keras.utils.get_custom_objects().update(custom_objects)

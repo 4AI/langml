@@ -13,10 +13,11 @@ else:
     import keras.layers as L
 
 from langml.layers import LayerNorm
-from langml.transformer import gelu
+from langml.activations import gelu
 from langml.transformer.encoder import TransformerEncoderBlock
 from langml.tensor_typing import Activation, Tensors, Models
-from langml.plm import TokenEmbedding, AbsolutePositionEmbedding, EmbeddingMatching, Masked
+from langml.plm import TokenEmbedding, EmbeddingMatching, Masked
+from langml.layers import AbsolutePositionEmbedding
 from langml.utils import load_variables
 
 

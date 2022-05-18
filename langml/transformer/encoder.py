@@ -13,7 +13,8 @@ else:
 
 from langml.layers import MultiHeadAttention, LayerNorm
 from langml.tensor_typing import Tensors, Activation
-from langml.transformer import gelu, FeedForward
+from langml.transformer import FeedForward
+from langml.activations import gelu
 
 
 class TransformerEncoder:
