@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional
+from typing import Optional, List
 
 from langml import keras, K, L
 from langml.tensor_typing import Tensors, Initializer, Constraint, Regularizer
@@ -270,3 +270,63 @@ class ScaleOffset(L.Layer):
     @staticmethod
     def get_custom_objects() -> dict:
         return {'ScaleOffset': ScaleOffset}
+
+
+class ConditionalLayerNormalization(L.Layer):
+    """ Conditional Layer Normalization
+    https://arxiv.org/abs/2108.00449
+    """
+    def __init__(self, scale: bool = True, offset: bool = True, **kwargs):
+        super(ConditionalLayerNormalization, self).__init__(**kwargs)
+        self.scale = scale
+        self.offset = offset
+
+        self.supports_masking = True
+
+    def get_config(self):
+        config = {
+            'scale': self.scale,
+            'offset': self.offset,
+        }
+        base_config = super(ConditionalLayerNormalization, self).get_config()
+        return dict(base_config, **config)
+
+    def build(self, input_shapes: Tensors):
+        super(ConditionalLayerNormalization, self).build(input_shapes)
+
+        input_shape, cond_shape = input_shapes
+        if self.offset is True:
+            self.beta = self.add_weight(
+                name='beta', shape=(input_shape[-1],), initializer='zeros'
+            )
+            self.beta_cond = self.add_weight(
+                name='beta_cond', shape=(cond_shape[-1], input_shape[-1]), initializer='zeros'
+            )
+        if self.scale is True:
+            self.gamma = self.add_weight(
+                name='gamma', shape=(input_shape[-1],), initializer='ones'
+            )
+            self.gamma_cond = self.add_weight(
+                name='gamma_cond', shape=(cond_shape[-1], input_shape[-1]), initializer='zeros'
+            )
+
+    def compute_mask(self, inputs: Tensors, mask: Optional[Tensors] = None):
+        return mask if mask is None else mask[0]
+
+    def call(self, inputs: List[Tensors]) -> Tensors:
+        inputs, cond = inputs
+        o = inputs
+        if self.scale:
+            gamma = self.gamma + K.dot(cond, self.gamma_cond)
+            o *= gamma
+        if self.offset:
+            beta = self.beta + K.dot(cond, self.beta_cond)
+            o += beta
+        return o
+
+    def compute_output_shape(self, input_shape: Tensors) -> Tensors:
+        return input_shape[0]
+
+    @staticmethod
+    def get_custom_objects() -> dict:
+        return {'ConditionalLayerNormalization': ConditionalLayerNormalization}
