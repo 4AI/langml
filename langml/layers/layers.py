@@ -276,8 +276,15 @@ class ConditionalLayerNormalization(L.Layer):
     """ Conditional Layer Normalization
     https://arxiv.org/abs/2108.00449
     """
-    def __init__(self, scale: bool = True, offset: bool = True, **kwargs):
+    def __init__(self,
+                 center: bool = True,
+                 epsilon: Optional[float] = None,
+                 scale: bool = True,
+                 offset: bool = True,
+                 **kwargs):
         super(ConditionalLayerNormalization, self).__init__(**kwargs)
+        self.center = center
+        self.epsilon = K.epsilon() if epsilon is None else epsilon
         self.scale = scale
         self.offset = offset
 
@@ -285,6 +292,8 @@ class ConditionalLayerNormalization(L.Layer):
 
     def get_config(self):
         config = {
+            'center': self.center,
+            'epsilon': self.epsilon,
             'scale': self.scale,
             'offset': self.offset,
         }
@@ -315,6 +324,11 @@ class ConditionalLayerNormalization(L.Layer):
 
     def call(self, inputs: List[Tensors]) -> Tensors:
         inputs, cond = inputs
+        if self.center:
+            mean = K.mean(inputs, axis=-1, keepdims=True)
+            var = K.mean(K.square(inputs), axis=-1, keepdims=True)
+            inputs = (inputs - mean) / K.sqrt(var + self.epsilon)
+
         o = inputs
         if self.scale:
             gamma = self.gamma + K.dot(cond, self.gamma_cond)
