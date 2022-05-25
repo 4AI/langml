@@ -7,7 +7,7 @@ To finetune a model, you need to prepare pretrained language models (PLMs). Curr
 
 1. Prepare datasets
 ------------------------------------
-You need to use specific tokenizers in terms of PLMs to initialize a tokenizer and convert texts to vocabulary indexes. LangML wraps `huggingface/tokenizers <https://github.com/huggingface/tokenizers>`_ and `google/sentencepiece <https://github.com/google/sentencepiece>`_ to provided a uniform interface. Specifically, you can initialize a wordpiece tokenizer via `langml.tokenizer.WPTokenizer`, and initialize a sentencepiece tokenizer via `langml.tokenizer.SPTokenizer`.
+You need to use specific tokenizers in terms of PLMs to initialize a tokenizer and convert texts to vocabulary indices. LangML wraps `huggingface/tokenizers <https://github.com/huggingface/tokenizers>`_ and `google/sentencepiece <https://github.com/google/sentencepiece>`_ to provide a uniform interface. Specifically, you can initialize a WordPiece tokenizer via `langml.tokenizer.WPTokenizer`, and initialize a sentencepiece tokenizer via `langml.tokenizer.SPTokenizer`.
 
 
 .. code-block:: python

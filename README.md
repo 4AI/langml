@@ -10,11 +10,10 @@ LangML (**Lang**uage **M**ode**L**) is a Keras-based and TensorFlow-backend lang
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
-  - [Set a Keras variant](#set-a-keras-variant)
+  - [Specify the Keras variant](#specify-the-keras-variant)
   - [Load pretrained language models](#load-pretrained-language-models)
   - [Finetune a model](#finetune-a-model)
   - [Use langml-cli to train baseline models](#use-langml-cli-to-train-baseline-models)
-  - [Prompt-Based Tuning](#prompt-based-tuning)
 - [Documentation](#documentation)
 - [Reference](#reference)
 
@@ -41,7 +40,7 @@ pip install -U langml
 # Quick Start
 <a href='#quick-start'></a>
 
-## Set a Keras variant
+## Specify the Keras variant
 
 1) Use pure Keras (default setting)
    
@@ -98,73 +97,63 @@ train_model.compile(loss='categorical_crossentropy', optimizer=keras.optimizer.A
 
 ```bash
 $ langml-cli baseline clf --help
+Usage: langml baseline clf [OPTIONS] COMMAND [ARGS]...
+
+  classification command line tools
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  bert
+  bilstm
+  textcnn
 ```
 
 2) Named Entity Recognition
 
 ```bash
 $ langml-cli baseline ner --help
+Usage: langml baseline ner [OPTIONS] COMMAND [ARGS]...
+
+  ner command line tools
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  bert-crf
+  lstm-crf
 ```
 
 3) Contrastive Learning
 
 ```bash
 $ langml-cli baseline contrastive --help
+Usage: langml baseline contrastive [OPTIONS] COMMAND [ARGS]...
+
+  contrastive learning command line tools
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  simcse
 ```
 
 4) Text Matching
 
 ```bash
 $ langml-cli baseline matching --help
-```
+Usage: langml baseline matching [OPTIONS] COMMAND [ARGS]...
 
-## Prompt-Based Tuning
+  text matching command line tools
 
-Use Ptuning for text classification:
+Options:
+  --help  Show this message and exit.
 
-```python
-from langml.prompt import Template,  PTuniningPrompt, PTuningForClassification
-from langml.tokenizer import WPTokenizer
-
-vocab_path = '/path/to/vocab.txt'
-
-tokenizer = WPTokenizer(vocab_path, lowercase=True)
-
-# 1. Define a template
-template = Template(
-    #  must specify tokens that are defined in the vocabulary, and the mask token is required
-    template=['it', 'was', '[MASK]', '.'],
-    # must specify tokens that are defined in the vocabulary.
-    label_tokens_map={
-        'positive': ['good'],
-        'negative': ['bad', 'terrible']
-    },
-    tokenizer=tokenizer
-)
-
-# 2. Define Prompt Model
-
-bert_config_path = '/path/to/bert_config.json'
-bert_ckpt_path = '/path/to/bert_model.ckpt'
-
-prompt_model = PTuniningPrompt('bert', bert_config_path, bert_ckpt_path,
-                               template, freeze_plm=False, learning_rate=5e-5, encoder='lstm')
-prompt_classifier = PTuningForClassification(prompt_model, tokenizer)
-
-# 3. Train and Infer
-
-data = [('I do not like this food', 'negative'),
-        ('I hate you', 'negative'),
-        ('I like you', 'positive'),
-        ('I like this food', 'positive')]
-
-X = [d for d, _ in data]
-y = [l for _, l in data]
-
-prompt_classifier.fit(X, y, X, y, batch_size=2, epoch=50, model_path='best_model.weight')
-# load pretrained model
-# prompt_classifier.load('best_model.weight')
-print("pred", prompt_classifier.predict('I hate you'))
+Commands:
+  sbert
 ```
 
 

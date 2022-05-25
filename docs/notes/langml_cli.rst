@@ -1,6 +1,6 @@
 Use langml-cli to quickly train baseline models
 ================================
-You can use LangML-CLI to quickly train baseline models. You don't need to write any code, just need to prepare the dataset in a specific format.
+You can use LangML-CLI to train baseline models quickly. You don't need to write any code and just need to prepare the dataset in a specific format.
 
 
 You can train various baseline models using `langml-cli`:
