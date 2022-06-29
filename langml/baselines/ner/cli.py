@@ -79,17 +79,17 @@ def train(
 
     if distributed_training:
         info('distributed training! using `TFDataLoader`')
-        train_DataLoader = TFDataLoader(train_datas, tokenizer, label2id,
+        train_dataloader = TFDataLoader(train_datas, tokenizer, label2id,
                                         batch_size=batch_size, max_len=max_len, is_bert=is_bert)
-        dev_DataLoader = TFDataLoader(dev_datas, tokenizer, label2id,
+        dev_dataloader = TFDataLoader(dev_datas, tokenizer, label2id,
                                       batch_size=batch_size, max_len=max_len, is_bert=is_bert)
     else:
-        train_DataLoader = DataLoader(train_datas, tokenizer, label2id,
+        train_dataloader = DataLoader(train_datas, tokenizer, label2id,
                                       batch_size=batch_size, max_len=max_len, is_bert=is_bert)
-        dev_DataLoader = DataLoader(dev_datas, tokenizer, label2id,
+        dev_dataloader = DataLoader(dev_datas, tokenizer, label2id,
                                     batch_size=batch_size, max_len=max_len, is_bert=is_bert)
-    train_dataset = train_DataLoader(random=True)
-    dev_dataset = dev_DataLoader(random=False)
+    train_dataset = train_dataloader(random=True)
+    dev_dataset = dev_dataloader(random=False)
 
     early_stop_callback = keras.callbacks.EarlyStopping(
         monitor=monitor,
@@ -106,9 +106,9 @@ def train(
         monitor=monitor,
         mode='auto')
     model.fit(train_dataset,
-              steps_per_epoch=len(train_DataLoader),
+              steps_per_epoch=len(train_dataloader),
               validation_data=dev_dataset,
-              validation_steps=len(dev_DataLoader),
+              validation_steps=len(dev_dataloader),
               verbose=verbose,
               epochs=epoch,
               callbacks=[early_stop_callback, save_checkpoint_callback])
@@ -123,14 +123,14 @@ def train(
     # compute detail metrics
     info('done to training! start to compute detail metrics...')
     print('develop metrics:')
-    dev_DataLoader = DataLoader(dev_datas, tokenizer, label2id,
+    dev_dataloader = DataLoader(dev_datas, tokenizer, label2id,
                                 batch_size=batch_size, max_len=max_len, is_bert=is_bert)
-    compute_detail_metrics(model, dev_DataLoader, id2label, is_bert=is_bert)
+    compute_detail_metrics(model, dev_dataloader, id2label, is_bert=is_bert)
     if test_datas:
         print('test metrics:')
-        test_DataLoader = DataLoader(test_datas, tokenizer, label2id,
+        test_dataloader = DataLoader(test_datas, tokenizer, label2id,
                                      batch_size=batch_size, max_len=max_len, is_bert=is_bert)
-        compute_detail_metrics(model, test_DataLoader, id2label, is_bert=is_bert)
+        compute_detail_metrics(model, test_dataloader, id2label, is_bert=is_bert)
     # save model
     info('start to save frozen')
     save_frozen(model, os.path.join(save_dir, 'frozen_model'))
