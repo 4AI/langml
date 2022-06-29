@@ -38,6 +38,7 @@ class EmbeddingMatching(L.Layer):
                  regularizer: Optional[Regularizer] = None,
                  constraint: Optional[Constraint] = None,
                  use_bias: bool = True,
+                 use_softmax: bool = True,
                  **kwargs):
         super(EmbeddingMatching, self).__init__(**kwargs)
         self.supports_masking = True
@@ -45,12 +46,15 @@ class EmbeddingMatching(L.Layer):
         self.regularizer = keras.regularizers.get(regularizer)
         self.constraint = keras.constraints.get(constraint)
         self.use_bias = use_bias
+        self.use_softmax = use_softmax
 
     def get_config(self) -> dict:
         config = {
             'initializer': keras.initializers.serialize(self.initializer),
             'regularizer': keras.regularizers.serialize(self.regularizer),
             'constraint': keras.constraints.serialize(self.constraint),
+            'use_bias': self.use_bias,
+            'use_softmax': self.use_softmax,
         }
         base_config = super(EmbeddingMatching, self).get_config()
         return dict(base_config, **config)
@@ -76,7 +80,9 @@ class EmbeddingMatching(L.Layer):
         output = K.dot(inputs, K.transpose(embeddings))
         if self.use_bias:
             output = K.bias_add(output, self.bias)
-        return K.softmax(output)
+        if self.use_softmax:
+            return K.softmax(output)
+        return output
 
     @staticmethod
     def get_custom_objects() -> dict:
