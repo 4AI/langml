@@ -595,6 +595,7 @@ class GatedAttentionUnit(L.Layer):
                  use_relative_position: bool = True,
                  use_offset: bool = True,
                  use_scale: bool = True,
+                 is_residual: bool = True,
                  **kwargs):
         super(GatedAttentionUnit, self).__init__(**kwargs)
 
@@ -618,6 +619,7 @@ class GatedAttentionUnit(L.Layer):
         self.use_relative_position = use_relative_position
         self.use_offset = use_offset
         self.use_scale = use_scale
+        self.is_residual = is_residual
 
     def get_config(self) -> dict:
         config = {
@@ -635,7 +637,8 @@ class GatedAttentionUnit(L.Layer):
             "use_attention_scale": self.use_attention_scale,
             "use_relative_position": self.use_relative_position,
             "use_offset": self.use_offset,
-            "use_scale": self.use_scale
+            "use_scale": self.use_scale,
+            "is_residual": self.is_residual
         }
         base_config = super(GatedAttentionUnit, self).get_config()
 
@@ -751,7 +754,9 @@ class GatedAttentionUnit(L.Layer):
         o = K.dot(x, self.Wo)
         if self.use_attention_bias:
             o += self.bo
-        return inputs + o  # residual
+        if self.is_residual:
+            return inputs + o  # residual
+        return o
 
     def compute_mask(self, inputs: Tensors, mask: Optional[Tensors] = None) -> Tensors:
         return mask
